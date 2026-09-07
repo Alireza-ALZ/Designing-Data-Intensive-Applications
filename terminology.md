@@ -16,7 +16,7 @@
 | Transaction | واحد منطقی اجرای عملیات داده | مجموعه‌ای از عملیات که باید با semantics مشخص و معمولاً به‌صورت اتمیک اجرا شود. |
 | Consistency | سازگاری مشاهده‌شده در داده | تضمینی دربارهٔ اینکه clientها پس از عملیات، وضعیت داده را مطابق قواعد سیستم و ترتیب معتبر ببینند. |
 | Fault Tolerance | توانایی ادامهٔ کار با وجود fault | طراحی سیستم برای شناسایی یا تحمل برخی hardware faultها، software faultها و failureهای داخلی بدون از دست دادن عملکرد موردنیاز. |
-| Latency | مدت‌زمان پاسخ‌گویی به یک درخواست | زمان سپری‌شده از ارسال request تا دریافت response؛ معمولاً برای سنجش responsiveness استفاده می‌شود. |
+| Latency | مدت انتظار request برای رسیدگی | با response time یکی نیست و فقط بخش انتظار برای دریافت service را توصیف می‌کند. |
 | Throughput | نرخ پردازش کار در واحد زمان | تعداد requestها، پیام‌ها یا عملیات پردازش‌شده در واحد زمان. |
 | Message Queue | صف ذخیره و انتقال پیام میان componentها | producer پیام را در صف قرار می‌دهد و consumer می‌تواند آن را مستقل یا به‌صورت asynchronous پردازش کند. |
 | Durability Guarantee | تضمین باقی‌ماندن داده پس از write | قراردادی دربارهٔ اینکه دادهٔ پذیرفته‌شده پس از restart، crash یا failure تا چه حد حفظ می‌شود. |
@@ -48,3 +48,45 @@
 | Backup | نسخهٔ ذخیره‌شده برای بازگردانی داده | کپی قابل استفاده برای restore داده پس از corruption یا failure. |
 | Recovery | بازگرداندن سیستم یا داده به وضعیت قابل استفاده | اقدام‌ها و ابزارهایی برای ادامهٔ service یا restore داده پس از failure. |
 | Failure Detection | شناسایی خرابی یا از دسترس خارج شدن component | پایش health workerها و serviceها برای تشخیص سریع failure و آغاز recovery. |
+| Performance | کیفیت و سرعت انجام کار توسط سیستم | با metricهایی مانند throughput، response time و latency سنجیده می‌شود. |
+| Load Parameter | عدد یا شاخص توصیف‌کنندهٔ load | مانند request در ثانیه، نسبت read به write، تعداد user فعال یا cache hit rate. |
+| Fan-out | تعداد مقصدها یا callهای ایجادشده از یک operation | یک operation مانند post کردن tweet می‌تواند به تعداد زیادی write یا call تبدیل شود. |
+| Batch Processing | پردازش مجموعه‌ای از داده در قالب job | معمولاً throughput یا زمان کامل اجرای job معیار اصلی آن است. |
+| Online Processing | پردازش requestهای تعاملی و جاری | معمولاً response time و latency برای تجربهٔ client اهمیت بیشتری دارند. |
+| Response Time | زمان مشاهده‌شده از دید client | فاصلهٔ ارسال request تا دریافت response، شامل service time و delayهای network و queue. |
+| Service Time | زمان واقعی پردازش request | بخشی از response time که صرف پردازش request در service می‌شود. |
+| Queueing Delay | زمان انتظار request در queue | تأخیری که پیش از شروع پردازش request و به‌دلیل اشغال بودن ظرفیت ایجاد می‌شود. |
+| Percentile | آستانه‌ای برای توصیف توزیع response time | مثلاً p95 زمانی است که ۹۵ درصد requestها سریع‌تر از آن پاسخ می‌گیرند. |
+| Median | مقدار میانی یک توزیع مرتب‌شده | همان p50؛ نیمی از مقدارها کمتر و نیمی بیشتر از آن هستند. |
+| Tail Latency | latency در percentileهای بالا | کندی بخش کوچکی از requestها که می‌تواند مستقیماً تجربهٔ user را خراب کند. |
+| Tail Latency Amplification | بزرگ‌تر شدن اثر tail latency در callهای زنجیره‌ای | در requestهایی با چند backend call، فقط یک call کند می‌تواند کل request را کند کند. |
+| Head-of-Line Blocking | معطل شدن requestهای بعدی پشت یک request کند | محدودیت parallelism باعث می‌شود چند request کند، response time requestهای سریع بعدی را هم افزایش دهند. |
+| Horizontal Scaling | افزایش ظرفیت با اضافه کردن machine یا node | load میان چند machine توزیع می‌شود؛ همان scaling out. |
+| Vertical Scaling | افزایش ظرفیت با استفاده از machine قدرتمندتر | منابع یک machine افزایش می‌یابد؛ همان scaling up. |
+| Shared-Nothing Architecture | معماری توزیع‌شده بدون resource مشترک مرکزی | هر node منابع خود را دارد و load میان nodeها توزیع می‌شود. |
+| Elasticity | توانایی افزودن یا حذف خودکار resource بر اساس load | برای loadهای unpredictable مفید است، اما می‌تواند پیچیدگی عملیاتی ایجاد کند. |
+| Resource Utilization | میزان استفاده از resourceهای محاسباتی | برای تحلیل capacity و تصمیم‌گیری دربارهٔ افزایش CPU، memory، network یا nodeها استفاده می‌شود. |
+| Service Level Objective (SLO) | هدف قابل‌اندازه‌گیری برای سطح service | معیار داخلی مانند p99 response time یا درصد availability که service باید به آن برسد. |
+| Service Level Agreement (SLA) | توافق قراردادی دربارهٔ سطح service | performance و availability مورد انتظار را مشخص می‌کند و ممکن است در صورت نقض، جبران تعیین کند. |
+| Operability | آسان بودن اجرای پایدار و روزمرهٔ سیستم | سیستم باید visibility، automation و control کافی برای تیم operations فراهم کند. |
+| Simplicity | کاهش complexity غیرضروری بدون حذف functionality لازم | سیستم ساده‌تر راحت‌تر فهمیده، نگهداری و تغییر داده می‌شود. |
+| Complexity | دشواری فهم، تغییر یا پیش‌بینی رفتار سیستم | complexity هزینهٔ maintenance و احتمال bugهای ناشی از change را افزایش می‌دهد. |
+| Accidental Complexity | complexity ناشی از implementation، نه خود مسئله | بخشی از دشواری که با abstraction و طراحی بهتر می‌توان حذف کرد. |
+| Essential Complexity | complexity ذاتی خود مسئله | دشواری‌ای که از requirement و domain مسئله می‌آید و با حذف implementation از بین نمی‌رود. |
+| Abstraction | پنهان کردن جزئیات پشت یک interface ساده | جزئیات implementation را مخفی و component را برای applicationهای مختلف reusable می‌کند. |
+| Coupling | وابستگی میان moduleها یا componentها | coupling شدید باعث می‌شود change در یک بخش، بخش‌های دیگر را نیز تحت تأثیر قرار دهد. |
+| Dependency | رابطهٔ نیازمندی یک component به component دیگر | dependencyهای درهم‌تنیده فهم، تست و تغییر سیستم را دشوار می‌کنند. |
+| Automation | انجام خودکار taskها و processهای عملیاتی | خطای انسانی را کاهش می‌دهد، اما نیازمند setup، monitoring و نگهداری صحیح است. |
+| Operational Model | مدل قابل‌فهم برای رفتار عملیاتی سیستم | توضیح می‌دهد عملیات‌هایی مانند تغییر configuration یا restart چه نتیجه‌ای دارند. |
+| Self-Healing | بازگردانی خودکار سیستم از برخی وضعیت‌های خراب | سیستم می‌تواند برخی failureها را بدون intervention دستی شناسایی و اصلاح کند. |
+| Evolvability | توانایی سازگار شدن سیستم با requirementهای جدید | agility در سطح data system و امکان تغییر architecture یا behavior در طول زمان. |
+| Legacy System | سیستم قدیمی و دشوار برای نگهداری یا تغییر | معمولاً نتیجهٔ تصمیم‌ها و محدودیت‌های گذشته است و maintenance آن هزینهٔ زیادی دارد. |
+| Technical Debt | هزینهٔ آیندهٔ تصمیم‌های فنی کوتاه‌مدت یا ناقص | changeهای بعدی را دشوارتر می‌کند و باید آگاهانه مدیریت و بازپرداخت شود. |
+| Agile | رویکرد کاری برای سازگاری سریع با change | processها و practiceهایی برای iteration سریع و پاسخ‌گویی به requirementهای جدید. |
+| Test-Driven Development (TDD) | توسعهٔ code با شروع از test | با تعریف behavior مورد انتظار پیش از implementation، feedback سریع و تغییرپذیری را بهبود می‌دهد. |
+| Refactoring | تغییر ساختار داخلی بدون تغییر behavior قابل‌مشاهده | complexity را کاهش می‌دهد و code را برای changeهای بعدی آماده‌تر می‌کند. |
+| Change Management | مدیریت کنترل‌شدهٔ تغییرات سیستم | changeها را با توجه به اثر، ریسک، deployment و recovery برنامه‌ریزی و اجرا می‌کند. |
+| Configuration Management | مدیریت version و تغییرات configuration | از تغییرات ناسازگار جلوگیری و امکان audit و بازگردانی configuration را فراهم می‌کند. |
+| Capacity Planning | پیش‌بینی resource موردنیاز در آینده | با بررسی رشد load، ظرفیت لازم برای جلوگیری از degradation را برآورد می‌کند. |
+| Big Ball of Mud | سیستم یا codebase‌ای گرفتار complexity و dependencyهای درهم‌تنیده | maintenance و تغییر چنین سیستمی دشوار و پرهزینه است. |
+| Modularity | تقسیم سیستم به moduleهای مستقل و قابل‌مدیریت | مرزهای روشن میان بخش‌ها coupling را کاهش و تغییرپذیری را افزایش می‌دهد. |
