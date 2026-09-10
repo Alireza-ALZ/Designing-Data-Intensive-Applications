@@ -90,3 +90,9 @@
 | Capacity Planning | پیش‌بینی resource موردنیاز در آینده | با بررسی رشد load، ظرفیت لازم برای جلوگیری از degradation را برآورد می‌کند. |
 | Big Ball of Mud | سیستم یا codebase‌ای گرفتار complexity و dependencyهای درهم‌تنیده | maintenance و تغییر چنین سیستمی دشوار و پرهزینه است. |
 | Modularity | تقسیم سیستم به moduleهای مستقل و قابل‌مدیریت | مرزهای روشن میان بخش‌ها coupling را کاهش و تغییرپذیری را افزایش می‌دهد. |
+| Data-Intensive Application | applicationای که چالش اصلی آن مقدار، complexity یا سرعت تغییر داده است | طراحی آن بیشتر تحت تأثیر data، storage و processing قرار دارد تا محدودیت CPU. |
+| Functional Requirement | requirement مربوط به کاری که application باید انجام دهد | مانند ذخیره، بازیابی، جست‌وجو یا پردازش داده. |
+| Nonfunctional Requirement | ویژگی کلی و کیفی سیستم | مانند security، reliability، scalability، compatibility یا maintainability. |
+| Compliance | رعایت الزام‌های قانونی، regulatory یا سیاست‌های سازمانی | رفتار و دادهٔ سیستم باید با قوانین و policyهای لازم سازگار باشد. |
+| Compatibility | توانایی کار کردن با platform، component یا interface دیگر | تغییر یک جزء نباید بدون دلیل، integration با اجزای سازگار را مختل کند. |
+| Processing Capacity | مقدار ظرفیت محاسباتی موجود برای پردازش load | با افزایش ظرفیت می‌توان در load بالا performance و reliability را حفظ کرد. |
