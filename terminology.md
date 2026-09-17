@@ -96,3 +96,32 @@
 | Compliance | رعایت الزام‌های قانونی، regulatory یا سیاست‌های سازمانی | رفتار و دادهٔ سیستم باید با قوانین و policyهای لازم سازگار باشد. |
 | Compatibility | توانایی کار کردن با platform، component یا interface دیگر | تغییر یک جزء نباید بدون دلیل، integration با اجزای سازگار را مختل کند. |
 | Processing Capacity | مقدار ظرفیت محاسباتی موجود برای پردازش load | با افزایش ظرفیت می‌توان در load بالا performance و reliability را حفظ کرد. |
+
+## Chapter 2
+
+| English Term | Persian Explanation | Engineering Meaning |
+|---|---|---|
+| Relational Model | مدل سازمان‌دهی داده در relationها یا tableها | داده را به row و column تقسیم می‌کند و access path را از application پنهان می‌سازد. |
+| Document Model | مدل سازمان‌دهی داده در documentهای معمولاً nested | برای داده‌های tree-like و one-to-many می‌تواند locality و سادگی بیشتری فراهم کند. |
+| NoSQL | عنوانی کلی برای databaseهای nonrelational | معمولاً برای scalability، queryهای تخصصی یا schemaهای dynamic استفاده می‌شود. |
+| Relational Database Management System (RDBMS) | نرم‌افزار مدیریت database بر پایهٔ relational model | ذخیره، query و مدیریت دادهٔ ساخت‌یافته را با table، row و column انجام می‌دهد. |
+| Schema | ساختار و قواعد شکل دادهٔ ذخیره‌شده | مشخص می‌کند داده چه fieldها، typeها و رابطه‌هایی داشته باشد. |
+| Polyglot Persistence | استفاده از چند نوع datastore برای نیازهای مختلف | فناوری ذخیره‌سازی بر اساس use case انتخاب می‌شود، نه با یک راه‌حل واحد برای همه. |
+| Object-Relational Mapping (ORM) | نگاشت objectهای application به ساختار relational | translation layer میان objectهای code و tableهای database را ساده‌تر می‌کند. |
+| Impedance Mismatch | ناهماهنگی میان مدل object-oriented و relational | تفاوت دو مدل باعث translation layer و boilerplate code می‌شود. |
+| Nested Data | دادهٔ تو‌در‌تو درون یک record یا document | داده‌های مرتبط را در یک ساختار واحد نگه می‌دارد و می‌تواند queryهای چندگانه را کاهش دهد. |
+| Relation | مجموعه‌ای از tupleها در relational model | در SQL معمولاً با table نمایش داده می‌شود. |
+| Tuple | یک عضو از relation در relational model | در SQL معمولاً با row نمایش داده می‌شود. |
+| One-to-Many Relationship | رابطهٔ یک entity با چند entity مرتبط | مانند یک user با چند position یا یک document والد با چند record فرزند. |
+| Many-to-One Relationship | رابطهٔ چند entity با یک entity مشترک | مانند چند user که به یک region یا industry اشاره می‌کنند. |
+| Many-to-Many Relationship | رابطهٔ چند entity از هر دو طرف | هر entity می‌تواند با چند entity از طرف مقابل مرتبط باشد و معمولاً به reference و join نیاز دارد. |
+| Foreign Key | identifierای برای reference به row یک table دیگر | رابطهٔ میان tableها را برقرار می‌کند و ممکن است با constraint محدود شود. |
+| Join | ترکیب دادهٔ مرتبط از چند table | هنگام query، rowهای مرتبط را بر اساس key یا شرط مشترک به هم متصل می‌کند. |
+| Normalization | حذف duplication با ذخیرهٔ هر value در یک محل | write overhead و خطر inconsistency ناشی از copyهای متعدد را کاهش می‌دهد. |
+| Denormalization | duplicate کردن کنترل‌شدهٔ داده | با کاهش join یا بهبود locality می‌تواند read را سریع‌تر کند، اما update و consistency را دشوارتر می‌کند. |
+| Hierarchical Model | مدل درختیِ recordهای nested | هر record معمولاً یک parent دارد و برای one-to-many مناسب است. |
+| Network Model | مدل graph-like با امکان چند parent برای هر record | many-to-one و many-to-many را با link و access path مدل می‌کند. |
+| Access Path | مسیر مشخص برای رسیدن به record | در مدل‌های قدیمی با دنبال کردن linkها از root به داده می‌رسیدند. |
+| Query Optimizer | جزء database برای انتخاب روش اجرای query | ترتیب اجرای operationها و indexهای مناسب را خودکار تعیین می‌کند. |
+| Document Reference | identifierای برای اشاره به document مرتبط | در document model نقش مشابه foreign key را دارد و هنگام read resolve می‌شود. |
+| Data Locality | نزدیک بودن داده‌های مرتبط در یک محل ذخیره‌سازی | می‌تواند تعداد queryها و joinهای لازم برای خواندن یک entity را کاهش دهد. |
