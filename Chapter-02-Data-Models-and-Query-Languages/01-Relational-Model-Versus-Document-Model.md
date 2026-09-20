@@ -167,6 +167,84 @@ document databaseها از یک جنبه به hierarchical model برگشته‌
 
 *یادداشت ۳: در زمان نگارش کتاب، join در RethinkDB پشتیبانی می‌شد، در MongoDB پشتیبانی نمی‌شد و در CouchDB فقط در viewهای از پیش تعریف‌شده پشتیبانی می‌شد.*
 
+### Relational Versus Document Databases Today
+
+برای مقایسهٔ relational databaseها با document databaseها، تفاوت‌های زیادی وجود دارد؛ از جمله ویژگی‌های `Fault Tolerance` آن‌ها (به فصل ۵ مراجعه کنید) و نحوهٔ مدیریت `concurrency` (به فصل ۷ مراجعه کنید). در این فصل فقط روی تفاوت‌های `data model` تمرکز می‌کنیم.
+
+مهم‌ترین استدلال‌ها به نفع document data model عبارت‌اند از: انعطاف‌پذیری schema، performance بهتر به‌دلیل locality، و نزدیک‌تر بودن آن به data structureهایی که application استفاده می‌کند. relational model در مقابل، از joinها و رابطه‌های many-to-one و many-to-many پشتیبانی بهتری ارائه می‌دهد.
+
+#### Which data model leads to simpler application code?
+
+اگر دادهٔ application شما ساختاری شبیه document دارد ــ یعنی treeای از رابطه‌های one-to-many که معمولاً کل آن یک‌جا load می‌شود ــ استفاده از document model احتمالاً انتخاب خوبی است. روش relational برای خرد کردن این ساختار شبیه document، یعنی تقسیم آن به چند table (مانند positions، education و contact_info در شکل ۲-۱)، می‌تواند به schemaهای دست‌وپاگیر و application code غیرضروری پیچیده منجر شود.
+
+Document model محدودیت‌هایی هم دارد. برای مثال، نمی‌توانید مستقیماً به یک item تو‌در‌تو درون document reference بدهید؛ در عوض باید چیزی شبیه «دومین item در فهرست positions مربوط به user 251» را مشخص کنید؛ روشی شبیه access path در hierarchical model. بااین‌حال، تا وقتی documentها بیش از حد عمیق nested نشده باشند، این معمولاً مشکل بزرگی نیست.
+
+پشتیبانی ضعیف document databaseها از join ممکن است بسته به application مشکل‌ساز باشد یا نباشد. برای مثال، در یک analytics application که با document database ثبت می‌کند چه eventهایی در چه زمان‌هایی رخ داده‌اند، شاید هرگز به many-to-many relationship نیاز نباشد [19].
+
+اما اگر application شما از many-to-many relationship استفاده کند، document model جذابیت کمتری خواهد داشت. می‌توان با denormalization نیاز به join را کاهش داد، اما در این صورت application code باید برای سازگار نگه داشتن دادهٔ denormalized کار بیشتری انجام دهد. همچنین می‌توان joinها را با ارسال چند request به database در application code شبیه‌سازی کرد؛ اما این کار complexity را به application منتقل می‌کند و معمولاً از joinای که code تخصصی داخل database انجام می‌دهد کندتر است.
+
+در چنین شرایطی، استفاده از document model می‌تواند به application code بسیار پیچیده‌تر و performance ضعیف‌تر منجر شود [15]. بنابراین نمی‌توان به‌طور کلی گفت کدام data model به application code ساده‌تری منجر می‌شود؛ پاسخ به نوع رابطه‌هایی بستگی دارد که میان data itemها وجود دارد. برای داده‌هایی که ارتباط‌های زیادی با هم دارند، document model نامناسب و دست‌وپاگیر است، relational model قابل‌قبول است و graph modelها طبیعی‌ترین انتخاب هستند (به بخش «Graph-Like Data Models» در صفحهٔ ۴۹ مراجعه کنید).
+
+#### Schema flexibility in the document model
+
+بیشتر document databaseها و قابلیت JSON در relational databaseها، هیچ schemaای را برای دادهٔ درون documentها enforce نمی‌کنند. پشتیبانی XML در relational databaseها معمولاً همراه با `schema validation` اختیاری ارائه می‌شود. نبود schema یعنی می‌توان keyها و valueهای دلخواهی به یک document اضافه کرد و client هنگام read کردن، هیچ تضمینی ندارد که documentها چه fieldهایی داشته باشند.
+
+گاهی document databaseها را `schemaless` می‌نامند، اما این تعبیر گمراه‌کننده است؛ چون codeای که داده را read می‌کند معمولاً نوعی structure را فرض می‌گیرد. یعنی schemaای implicit وجود دارد، اما database آن را enforce نمی‌کند [20]. اصطلاح دقیق‌تر `schema-on-read` است: structure داده implicit است و فقط هنگام read تفسیر می‌شود. این رویکرد در مقابل `schema-on-write` قرار دارد؛ رویکرد سنتی relational databaseها که در آن schema explicit است و database تضمین می‌کند تمام داده‌های نوشته‌شده با آن سازگار باشند [21].
+
+schema-on-read شبیه `dynamic type checking` در programming languageهاست، در حالی که schema-on-write به `static type checking` شباهت دارد. همان‌طور که طرفداران static و dynamic type checking دربارهٔ مزیت‌های نسبی آن‌ها بحث‌های زیادی دارند [22]، enforce کردن schema در database نیز موضوعی بحث‌برانگیز است و در حالت کلی پاسخ درست یا غلط مطلقی ندارد.
+
+تفاوت این دو رویکرد به‌خصوص زمانی آشکار می‌شود که application بخواهد format دادهٔ خود را تغییر دهد. فرض کنید در حال حاضر نام کامل هر user را در یک field ذخیره می‌کنید، اما تصمیم گرفته‌اید first name و last name را جداگانه ذخیره کنید [23]. در document database کافی است نوشتن documentهای جدید با fieldهای جدید را شروع کنید و در application code حالتی را مدیریت کنید که documentهای قدیمی read می‌شوند. برای مثال:
+
+```javascript
+if (user && user.name && !user.first_name) {
+    // Documents written before Dec 8, 2013 don't have first_name
+    user.first_name = user.name.split(" ")[0];
+}
+```
+
+در مقابل، در یک database با schema «statically typed» معمولاً باید `migration`ای شبیه این اجرا کنید:
+
+```sql
+ALTER TABLE users ADD COLUMN first_name text;
+UPDATE users SET first_name = split_part(name, ' ', 1);      -- PostgreSQL
+UPDATE users SET first_name = substring_index(name, ' ', 1);      -- MySQL
+```
+
+تغییر schema reputation بدی دارد، چون تصور می‌شود کند است و به downtime نیاز دارد. این reputation کاملاً منصفانه نیست: بیشتر relational database systemها دستور `ALTER TABLE` را در چند millisecond اجرا می‌کنند. `MySQL` یک استثنای مهم است؛ این سیستم هنگام `ALTER TABLE` کل table را copy می‌کند و در زمان تغییر یک table بزرگ ممکن است چند دقیقه یا حتی چند ساعت downtime ایجاد شود. البته ابزارهای مختلفی برای دور زدن این محدودیت وجود دارد [24, 25, 26].
+
+اجرای دستور `UPDATE` روی یک table بزرگ احتمالاً در هر databaseای کند است، چون باید هر row بازنویسی شود. اگر این کار قابل‌قبول نباشد، application می‌تواند `first_name` را با مقدار پیش‌فرض `NULL` نگه دارد و آن را هنگام read پر کند؛ درست مانند کاری که در document database انجام می‌دهد.
+
+رویکرد schema-on-read زمانی مزیت دارد که itemهای یک collection به دلیلی structure یکسانی نداشته باشند؛ یعنی داده `heterogeneous` باشد. برای مثال:
+
+- objectها typeهای بسیار متفاوتی دارند و عملی نیست که برای هر type یک table جداگانه بسازیم.
+- structure داده را systemهای خارجی تعیین می‌کنند؛ systemهایی که کنترلی بر آن‌ها نداریم و ممکن است هر زمان تغییر کنند.
+
+در چنین شرایطی، schema ممکن است بیشتر از آنکه کمک کند مانع ایجاد کند و schemaless documentها می‌توانند data model طبیعی‌تری باشند. اما وقتی انتظار می‌رود همهٔ recordها structure یکسانی داشته باشند، schema mechanism مفیدی برای مستندسازی و enforce کردن آن structure است. در فصل ۴، schema و `schema evolution` را با جزئیات بیشتری بررسی می‌کنیم.
+
+#### Data locality for queries
+
+یک document معمولاً به‌صورت یک رشتهٔ پیوسته ذخیره می‌شود که با `JSON`، `XML` یا یک variant باینری آن‌ها (مانند `BSON` در MongoDB) encode شده است. اگر application شما اغلب لازم دارد کل document را access کند ــ مثلاً برای render کردن آن در یک web page ــ این locality در storage یک مزیت performance ایجاد می‌کند. اگر داده مانند شکل ۲-۱ میان چند table تقسیم شده باشد، برای بازیابی همهٔ آن به چند index lookup نیاز است؛ این کار ممکن است به disk seekهای بیشتر و زمان طولانی‌تر منجر شود.
+
+مزیت locality فقط زمانی وجود دارد که لازم باشد بخش بزرگی از document را هم‌زمان بخوانید. database معمولاً باید کل document را load کند، حتی اگر فقط به بخش کوچکی از آن access داشته باشید؛ بنابراین برای documentهای بزرگ ممکن است این کار wasteful باشد. هنگام update کردن document نیز معمولاً باید کل document دوباره write شود؛ فقط modificationهایی که اندازهٔ encodeشدهٔ document را تغییر نمی‌دهند به‌سادگی می‌توانند in-place انجام شوند [19]. به همین دلیل معمولاً توصیه می‌شود documentها را نسبتاً کوچک نگه دارید و از writeهایی که اندازهٔ document را افزایش می‌دهند پرهیز کنید [9].
+
+این محدودیت‌های performance، مجموعهٔ شرایطی را که document databaseها در آن مفید هستند به‌طور چشمگیری کوچک می‌کنند.
+
+باید توجه کرد که ایدهٔ گروه‌بندی داده‌های مرتبط برای بهبود locality به document model محدود نیست. برای مثال، databaseِ `Google Spanner` همین ویژگی locality را در یک relational data model فراهم می‌کند؛ به این صورت که schema اجازه می‌دهد rowهای یک table به‌صورت interleaved و nested درون یک parent table قرار بگیرند [27]. `Oracle` نیز با قابلیتی به نام `multi-table index cluster tables` امکان مشابهی ارائه می‌دهد [28]. مفهوم `column-family` در Bigtable data model، که در Cassandra و HBase استفاده می‌شود، هدف مشابهی برای مدیریت locality دارد [29]. در فصل ۳ بیشتر دربارهٔ locality صحبت خواهیم کرد.
+
+#### Convergence of document and relational databases
+
+بیشتر relational database systemها (به‌جز MySQL) از اواسط دههٔ ۲۰۰۰ از XML پشتیبانی کرده‌اند. این پشتیبانی شامل functionهایی برای modificationهای local در XML documentها و قابلیت index و query کردن داخل XML documentهاست؛ بنابراین applicationها می‌توانند data modelهایی بسیار شبیه document databaseها داشته باشند.
+
+`PostgreSQL` از نسخهٔ 9.3، `MySQL` از نسخهٔ 5.7 و `IBM DB2` از نسخهٔ 10.5 سطح مشابهی از پشتیبانی برای JSON documentها دارند [30]. با توجه به محبوبیت JSON در web APIها، احتمالاً relational databaseهای دیگری نیز همین مسیر را دنبال می‌کنند و پشتیبانی از JSON را اضافه خواهند کرد.
+
+در سمت document databaseها، `RethinkDB` از joinهای شبیه relational در query language خود پشتیبانی می‌کند و بعضی driverهای MongoDB به‌طور خودکار database referenceها را resolve می‌کنند؛ این کار عملاً یک client-side join است، هرچند احتمالاً از joinای که داخل database انجام می‌شود کندتر است، چون به round-tripهای network اضافی نیاز دارد و optimization کمتری روی آن انجام می‌شود.
+
+به نظر می‌رسد relational و document databaseها به‌مرور شبیه‌تر می‌شوند و این اتفاق خوبی است؛ data modelهای آن‌ها مکمل یکدیگرند. اگر database بتواند هم دادهٔ شبیه document را handle کند و هم queryهای relational را روی آن اجرا کند، application می‌تواند ترکیبی از قابلیت‌ها را به کار بگیرد که بیشترین تناسب را با نیازش دارد.
+
+ترکیبی از relational model و document model مسیر مناسبی برای databaseهای آینده است.
+
+*یادداشت ۵: توصیف اولیهٔ Codd از relational model [1] در واقع چیزی بسیار شبیه JSON document را درون یک relational schema مجاز می‌دانست. او این مفهوم را `nonsimple domains` نامید. ایده این بود که value یک row مجبور نیست فقط یک primitive datatype مانند number یا string باشد؛ این value می‌تواند یک relation تو‌در‌تو (table) نیز باشد. بنابراین می‌توان structure درختی‌ای با عمق دلخواه را به‌عنوان value داشت؛ چیزی شبیه پشتیبانی JSON یا XML که بیش از ۳۰ سال بعد به SQL اضافه شد.*
+
 ## Key Terms
 
 - `Relational Model` — مدلی که داده را در relationها یا tableها به‌صورت row و column سازمان‌دهی می‌کند و access path را از application developer پنهان می‌سازد.
@@ -191,3 +269,13 @@ document databaseها از یک جنبه به hierarchical model برگشته‌
 - `Query Optimizer` — جزء database که ترتیب اجرای query و indexهای مناسب را به‌طور خودکار انتخاب می‌کند.
 - `Document Reference` — identifierای که در document model به یک document مرتبط اشاره می‌کند.
 - `Data Locality` — نزدیک بودن داده‌های مرتبط به یکدیگر در یک document یا محل ذخیره‌سازی، برای کاهش query و join.
+- `Schema Flexibility` — آزادی در تغییر structure documentها بدون نیاز به migration هم‌زمان در کل داده‌ها.
+- `Schema-on-Read` — رویکردی که در آن structure داده هنگام read تفسیر می‌شود و database آن را از پیش enforce نمی‌کند.
+- `Schema-on-Write` — رویکردی که در آن schema هنگام write enforce می‌شود و دادهٔ ذخیره‌شده باید با آن سازگار باشد.
+- `Schema Evolution` — تغییر کنترل‌شدهٔ schema در طول عمر application و سازگار نگه داشتن code و داده با versionهای مختلف.
+- `Migration` — فرایند تغییر structure یا انتقال داده برای هماهنگ شدن با schema یا version جدید.
+- `Dynamic Type Checking` — بررسی type داده هنگام اجرا، نه در زمان compile.
+- `Static Type Checking` — بررسی type داده پیش از اجرا، معمولاً در زمان compile.
+- `Heterogeneous Data` — مجموعه‌ای از داده که itemهای آن structure یا type یکسانی ندارند.
+- `Client-Side Join` — اجرای join در application یا client با دریافت داده از چند request، به‌جای اجرای آن داخل database.
+- `Hybrid Data Model` — ترکیب قابلیت‌های relational و document برای پشتیبانی هم‌زمان از دادهٔ nested و queryهای relational.

@@ -125,3 +125,53 @@
 | Query Optimizer | جزء database برای انتخاب روش اجرای query | ترتیب اجرای operationها و indexهای مناسب را خودکار تعیین می‌کند. |
 | Document Reference | identifierای برای اشاره به document مرتبط | در document model نقش مشابه foreign key را دارد و هنگام read resolve می‌شود. |
 | Data Locality | نزدیک بودن داده‌های مرتبط در یک محل ذخیره‌سازی | می‌تواند تعداد queryها و joinهای لازم برای خواندن یک entity را کاهش دهد. |
+| Schema Flexibility | آزادی در تغییر structure documentها بدون migration هم‌زمان در کل داده‌ها | برای داده‌های متغیر مفید است، اما بخشی از اعتبارسنجی schema را به application منتقل می‌کند. |
+| Schema-on-Read | تفسیر structure داده هنگام read، بدون enforce شدن کامل توسط database | تغییر format داده را ساده‌تر می‌کند، اما client باید با versionهای مختلف داده سازگار باشد. |
+| Schema-on-Write | enforce کردن schema هنگام write و الزام سازگاری دادهٔ ذخیره‌شده با آن | ساختار داده را صریح و قابل‌کنترل می‌کند، اما تغییر schema ممکن است به migration نیاز داشته باشد. |
+| Schema Evolution | تغییر کنترل‌شدهٔ schema در طول عمر application | code و داده باید بتوانند با schemaهای جدید و قدیمی به‌صورت سازگار کار کنند. |
+| Migration | تغییر structure یا انتقال داده برای هماهنگی با schema جدید | معمولاً برای تغییر table، اضافه کردن field یا بازنویسی recordهای موجود استفاده می‌شود. |
+| Dynamic Type Checking | بررسی type داده در زمان اجرای program | انعطاف‌پذیری بیشتری می‌دهد، اما برخی خطاها دیرتر و هنگام runtime آشکار می‌شوند. |
+| Static Type Checking | بررسی type داده پیش از اجرای program، معمولاً در compile time | بسیاری از ناسازگاری‌های type را زودتر آشکار می‌کند، اما تغییر structure ممکن است نیازمند تغییرات صریح باشد. |
+| Heterogeneous Data | داده‌ای که itemهای آن structure یا type یکسانی ندارند | در collectionهای متنوع یا دادهٔ ورودی از systemهای خارجی رایج است و ممکن است schema ثابت را نامناسب کند. |
+| Client-Side Join | اجرای join در application با دریافت داده از چند request | complexity و round-tripهای network را افزایش می‌دهد و معمولاً از join داخل database کندتر است. |
+| Hybrid Data Model | ترکیب قابلیت‌های relational و document | امکان استفادهٔ هم‌زمان از nested data و queryهای relational را فراهم می‌کند. |
+| Query Language | زبان بیان query برای خواندن یا پردازش داده | interfaceی برای انتقال خواستهٔ application به database با syntax مشخص است. |
+| Declarative Query | queryای که result موردنظر را مشخص می‌کند، نه مراحل رسیدن به آن | database می‌تواند execution plan، index و ترتیب operationها را خودش انتخاب و optimize کند. |
+| Imperative Query | query یا APIای که مراحل و ترتیب اجرای operationها را مشخص می‌کند | کنترل اجرایی بیشتری می‌دهد، اما coupling با implementation و access path را افزایش می‌دهد. |
+| Declarative Programming | برنامه‌نویسی بر اساس توصیف result یا rule، بدون تعیین algorithm دقیق | abstraction و امکان optimization خودکار را افزایش می‌دهد. |
+| Imperative Programming | برنامه‌نویسی با تعیین گام‌ها و ترتیب اجرای آن‌ها | کنترل رفتار اجرایی را بیشتر می‌کند، اما parallelization و تغییر implementation دشوارتر می‌شود. |
+| Relational Algebra | مجموعه‌ای formal از operationها برای کار با relationها | مبنای نظری بسیاری از queryهای relational و SQL است. |
+| Query Execution | اجرای عملی query روی داده | شامل انتخاب plan، خواندن index، join، filter، grouping و تولید result است. |
+| Parallel Processing | اجرای هم‌زمان بخش‌های یک کار روی چند core یا machine | با تقسیم کار می‌تواند throughput را افزایش دهد، اگر taskها قابلیت parallel شدن داشته باشند. |
+| MapReduce | programming model برای پردازش داده در دو مرحلهٔ map و reduce | اجرای distributed روی دادهٔ بزرگ را ممکن می‌کند و در برخی NoSQL datastoreها برای query استفاده می‌شود. |
+| Map Function | functionی که ورودی‌ها را می‌خواند و key-value تولید می‌کند | داده را به خروجی‌های قابل group شدن برای مرحلهٔ reduce تبدیل می‌کند. |
+| Reduce Function | functionی که valueهای مربوط به یک key را ترکیب می‌کند | aggregation یا محاسبهٔ نهایی هر گروه را انجام می‌دهد. |
+| Pure Function | functionی بدون وابستگی بیرونی و بدون side effect | اجرای مجدد، جابه‌جایی و parallel کردن آن در distributed system امن‌تر است. |
+| Side Effect | تغییری خارج از result function، مانند write یا تغییر state مشترک | اجرای مجدد یا موازی function را دشوار و احتمال inconsistency را بیشتر می‌کند. |
+| Distributed Query Execution | اجرای query روی چند machine یا node | برای پردازش datasetهای بزرگ استفاده می‌شود و به تقسیم کار و coordination نیاز دارد. |
+| Aggregation Pipeline | query language مرحله‌ای MongoDB برای filter و group کردن داده | جایگزینی declarativeتر برای بسیاری از queryهای MapReduce است. |
+| Composability | قابلیت ترکیب componentها یا operationها برای ساخت behavior پیچیده‌تر | abstractionها را reusable می‌کند و طراحی pipelineهای قابل‌گسترش را آسان‌تر می‌سازد. |
+| Graph Database | databaseای که داده را به‌صورت vertex و edge ذخیره و query می‌کند | برای داده‌های به‌شدت interconnected و traversalهای چندمرحله‌ای مناسب است. |
+| Graph Model | مدل نمایش داده به‌صورت node و relationship | ارتباط میان entityها را به‌عنوان بخش اصلی data model در نظر می‌گیرد. |
+| Property Graph | graphی که vertex و edge در آن identifier، label و property دارند | انعطاف‌پذیری زیادی برای مدل کردن entityها و relationshipهای متنوع فراهم می‌کند. |
+| Vertex | node یا entity در graph | نقطه‌ای که object، person، location یا هر entity دیگر را نمایش می‌دهد. |
+| Edge | connection جهت‌دار یا رابطه میان دو vertex | نوع و جهت relationship میان entityها را نشان می‌دهد و می‌تواند property داشته باشد. |
+| Graph Query | query برای پیدا کردن vertex، edge یا pattern در graph | معمولاً شامل pattern matching یا traversal در مسیرهای چندمرحله‌ای است. |
+| Graph Traversal | پیمایش graph با دنبال کردن edgeها از یک vertex به vertexهای دیگر | برای پیدا کردن connectionهای مستقیم یا زنجیره‌ای و حل queryهای relationshipمحور استفاده می‌شود. |
+| Cypher | declarative query language مربوط به Neo4j و property graphها | patternهای graph را با syntax خوانا برای match، create و return بیان می‌کند. |
+| Triple-Store | datastoreای که اطلاعات را به‌صورت subject، predicate و object ذخیره می‌کند | data model ساده‌ای برای graph data و RDF فراهم می‌کند. |
+| Subject | بخش اول یک RDF triple | vertex یا entityای را مشخص می‌کند که statement دربارهٔ آن است. |
+| Predicate | بخش دوم یک RDF triple | نوع property یا relationship میان subject و object را مشخص می‌کند. |
+| Object | بخش سوم یک RDF triple | value یک property یا vertex مقصد یک relationship است. |
+| SPARQL | declarative query language برای triple-storeهای مبتنی بر RDF | patternهای RDF را برای جست‌وجو و ترکیب graph data بیان می‌کند. |
+| RDF | data model استاندارد برای بیان resourceها و relationshipهای آن‌ها | امکان تبادل machine-readable data میان systemها و namespaceهای مستقل را فراهم می‌کند. |
+| Turtle | syntax خوانا برای نوشتن RDF tripleها | نمایش compactتری از RDF است و برای خواندن و نوشتن انسانی مناسب‌تر از RDF/XML است. |
+| Datalog | query language rule-based و declarative، مبتنی بر predicate و rule | queryهای recursive و قابل‌ترکیب را با derive کردن factهای جدید از داده و ruleها بیان می‌کند. |
+| Pattern Matching | پیدا کردن بخش‌هایی از graph یا data که با یک pattern مشخص سازگارند | پایهٔ queryهایی مانند MATCH در Cypher و patternهای SPARQL است. |
+| Recursive Query | queryای که برای رسیدن به result به خودش یا نتیجهٔ مرحلهٔ قبل reference می‌دهد | برای traversal با عمق نامشخص و common table expressionهای recursive استفاده می‌شود. |
+| Graph Processing | پردازش الگوریتمی روی مجموعه‌ای از vertexها و edgeها | برای کارهایی مانند shortest path، ranking و تحلیل connectionها به کار می‌رود. |
+| Sequence-Similarity Search | جست‌وجوی stringهایی که از نظر sequence شبیه یکدیگرند | در genome analysis برای مقایسهٔ DNA sequenceها با datasetهای بزرگ استفاده می‌شود. |
+| Genome Database | database تخصصی برای ذخیره و query کردن داده‌های genome | برای داده‌هایی طراحی شده که queryهای آن‌ها با databaseهای عمومی به‌خوبی پوشش داده نمی‌شود. |
+| Full-Text Search | جست‌وجو در متن بر اساس کلمه، عبارت یا الگوی زبانی | معمولاً با search index انجام می‌شود و در کنار database اصلی قرار می‌گیرد. |
+| Information Retrieval | حوزهٔ پیدا کردن اطلاعات مرتبط از میان مجموعه‌ای از documentها | مبنای فنی search engineها و systemهای جست‌وجوی متن است. |
+| Data Processing | اجرای operationها برای تبدیل، تحلیل یا استخراج داده | می‌تواند به‌صورت transactional، batch، online یا distributed انجام شود. |
