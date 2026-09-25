@@ -304,3 +304,64 @@
 | Message-Oriented Middleware | middlewareای که ارتباط componentها را از طریق message انجام می‌دهد | message broker را به‌عنوان واسطه‌ای میان producer و consumer به کار می‌گیرد. |
 | Future/Promise | abstraction برای result یک operation asynchronous | ترکیب requestهای parallel و مدیریت success یا failure آن‌ها را ساده می‌کند. |
 | Stream | دنبالهٔ پیوستهٔ requestها و responseها در یک call | ارتباط چندمرحله‌ای را به‌جای یک request و یک response پشتیبانی می‌کند. |
+
+## Chapter 5
+
+| English Term | Persian Explanation | Engineering Meaning |
+|---|---|---|
+| Replication | نگهداری copy یکسانی از data روی چند machine یا node | availability، read throughput یا نزدیکی جغرافیایی data به userها را بهبود می‌دهد. |
+| Leader | replica دریافت‌کنندهٔ writeها در leader-based replication | changeهای data را ثبت و برای followerها منتشر می‌کند. |
+| Follower | replica دریافت‌کننده و apply‌کنندهٔ changeهای leader | معمولاً readها را پاسخ می‌دهد و برای redundancy و read scaling به کار می‌رود. |
+| Primary | نام دیگر leader در leader-based replication | node اصلی پذیرندهٔ write است. |
+| Replica | node دارای copyای از database یا dataset | می‌تواند read را سرو کند یا در صورت failure جایگزین node دیگر شود. |
+| Read Replica | replicaای که برای read queryها استفاده می‌شود | load read را از leader جدا می‌کند و read scaling را ممکن می‌سازد. |
+| Leader-Based Replication | replication با یک leader و چند follower | تمام writeها را از leader عبور می‌دهد و order تغییرات را میان replicaها حفظ می‌کند. |
+| Synchronous Replication | replicationای که leader پیش از اعلام success write منتظر تأیید follower می‌ماند | durability و consistency بهتری می‌دهد، اما failure follower می‌تواند write را متوقف کند. |
+| Asynchronous Replication | replication بدون انتظار leader برای response follower | availability و write throughput بالاتری دارد، اما ممکن است data تأییدشده هنگام failure leader از دست برود. |
+| Semi-Synchronous Replication | configuration با دست‌کم یک follower synchronous و followerهای دیگر asynchronous | میان durability، availability و تحمل failure تعادل ایجاد می‌کند. |
+| Replication Lag | فاصلهٔ زمانی یا مقداری میان state leader و follower | روی freshness read و guaranteeهای consistency اثر می‌گذارد. |
+| Replication Log | log مربوط به data changeهای منتشرشده از leader | follower با apply کردن آن local copy خود را update می‌کند. |
+| Snapshot | تصویر consistent از data در یک نقطهٔ زمانی | برای ساخت follower جدید، backup یا data export استفاده می‌شود. |
+| Catch-Up Recovery | recovery follower با apply کردن changeهای زمان disconnected بودن | follower را بدون copy کامل دوباره به leader همگام می‌کند. |
+| Failover | انتقال نقش leader به replicaی دیگر پس از failure | availability را حفظ می‌کند، اما انتخاب leader و احتمال data loss نیازمند مدیریت دقیق است. |
+| Node Outage | unavailable شدن node به‌دلیل fault یا maintenance | system باید با آن کنار بیاید و اثر آن را روی service کاهش دهد. |
+| Statement-Based Replication | ارسال statementهای write اجراشده از leader به follower | ساده و compact است، اما با operationهای nondeterministic و side effectدار مشکل دارد. |
+| Write-Ahead Log Shipping | replication با ارسال WAL سطح پایین storage engine | copy دقیق data structureها را می‌سازد، اما leader و follower را به storage format وابسته می‌کند. |
+| Logical Replication | replication بر اساس log مستقل از internals storage engine | versionهای متفاوت database یا storage engine و integration با systemهای خارجی را آسان‌تر می‌کند. |
+| Change Data Capture (CDC) | استخراج changeها از logical log برای ارسال به system خارجی | data را به data warehouse، cache یا custom index منتقل می‌کند. |
+| Durability | تضمین باقی ماندن write پذیرفته‌شده پس از crash یا failure | مشخص می‌کند write تأییدشده تا چه حد در برابر failure محافظت شده است. |
+| Network Partition | اختلالی که ارتباط بخشی از nodeها را با بخش دیگر قطع می‌کند | می‌تواند failure detection، failover و consistency را پیچیده کند. |
+| Consensus | توافق چند node بر سر value یا leader مشترک | برای election و جلوگیری از تصمیم‌های متناقض در system distributed لازم است. |
+| Split Brain | وضعیتی که دو node هم‌زمان خود را leader می‌دانند | پذیرش write در هر دو node می‌تواند به conflict، corruption یا data loss منجر شود. |
+| Fencing | جلوگیری از فعالیت node قدیمی یا غیرمجاز پس از تغییر leader | از writeهای متناقض و آسیب leader قبلی به data جلوگیری می‌کند. |
+| Eventual Consistency | guarantee رسیدن replicaها به state سازگار پس از توقف تغییرات | زمان مشخصی برای convergence تعیین نمی‌کند و ممکن است stale read رخ دهد. |
+| Read-After-Write Consistency | guarantee مشاهدهٔ update خود user در readهای بعدی | از این تصور جلوگیری می‌کند که data submit‌شده پس از write گم شده است. |
+| Reading Your Own Writes | الگوی consistency که user data نوشته‌شدهٔ خودش را در read بعدی می‌بیند | برای profile، comment و inputهای تازهٔ user اهمیت دارد. |
+| Monotonic Reads | guarantee جلوگیری از مشاهدهٔ data قدیمی‌تر پس از data جدیدتر | ترتیب زمانی مشاهدهٔ یک user را حتی با read از replicaهای مختلف حفظ می‌کند. |
+| Consistent Prefix Reads | guarantee حفظ order مشاهدهٔ writeهای مرتبط برای readerها | از دیده شدن معلول پیش از علت در systemهای distributed جلوگیری می‌کند. |
+| Causality | رابطهٔ علت و معلولی میان eventها یا writeهای system | مشخص می‌کند کدام event باید پیش از event دیگر مشاهده یا apply شود. |
+| Causal Dependency | وابستگی یک event به مشاهده یا رخ دادن event دیگر | برای حفظ ترتیب منطقی writeها و جلوگیری از anomalyهای read به کار می‌رود. |
+| Causal Ordering | مرتب‌سازی eventها مطابق dependencyهای causal | باعث می‌شود علت پیش از معلول در view reader ظاهر شود. |
+| Session Guarantee | مجموعه guaranteeهای consistency در طول session یک user | رفتار readها را برای user پایدارتر و قابل‌پیش‌بینی‌تر می‌کند. |
+| Read Consistency | guarantee مربوط به تازگی و order data برگشتی از read | مشخص می‌کند user تا چه حد state جدید و ترتیب معتبر writeها را می‌بیند. |
+| Stale Read | read کردن value قدیمی از replica عقب‌مانده | یکی از پیامدهای مستقیم replication lag در asynchronous replication است. |
+| Strong Consistency | guarantee مشاهدهٔ state سازگار با writeهای پذیرفته‌شده و order معتبر | از eventual consistency قوی‌تر است، اما معمولاً هزینهٔ performance یا availability دارد. |
+| Consistent View | viewای از data با state و order مشاهده‌شدهٔ سازگار | از ترکیب شدن stateهای ناسازگار replicaها در تجربهٔ یک reader جلوگیری می‌کند. |
+| Read Scaling | افزایش ظرفیت read با distribute کردن query میان replicaها | load leader را کم می‌کند و با اضافه کردن follower ظرفیت read را افزایش می‌دهد. |
+| Multi-Leader Replication | replicationای که در آن چند node می‌توانند write را بپذیرند | leaderها changeهای خود را میان یکدیگر replicate می‌کنند و برای multi-datacenter یا offline operation مناسب‌اند. |
+| Write Conflict | ایجاد valueهای متفاوت توسط writeهای concurrent روی data یکسان | در multi-leader replication باید detect و resolve شود تا replicaها converge کنند. |
+| Conflict Detection | شناسایی writeهایی که نمی‌توانند بدون resolve شدن هم‌زمان اعمال شوند | وجود concurrent modification یا dependency ناسازگار را مشخص می‌کند. |
+| Conflict Resolution | انتخاب، merge یا نگهداری چند version برای حل write conflict | replicaها را به state نهایی مشترک می‌رساند. |
+| Conflict Avoidance | routing کردن writeهای یک record به leader واحد | پیش از ایجاد conflict آن را حذف می‌کند، اما انعطاف multi-leader را محدود می‌سازد. |
+| Conflict-Free Replicated Data Type (CRDT) | data structure با ruleهای داخلی برای merge کردن editهای concurrent | conflictهای set، map، list یا counter را به‌صورت automatic resolve می‌کند. |
+| Last Write Wins (LWW) | انتخاب write دارای بالاترین timestamp یا ID و حذف writeهای دیگر | ساده و رایج است، اما می‌تواند به data loss منجر شود. |
+| Replication Topology | مسیرهای communication انتشار write میان leaderها | fault tolerance، latency و احتمال replication loop را تحت تأثیر قرار می‌دهد. |
+| Circular Replication | topologyای که هر node change را از یک node می‌گیرد و به node بعدی forward می‌کند | ساده است، اما failure یک node می‌تواند مسیر کل replication را قطع کند. |
+| Star Topology | topologyای با root node مرکزی برای forward کردن writeها | routing ساده‌ای دارد، اما root یا linkهای آن می‌توانند single point of failure باشند. |
+| All-to-All Topology | topologyای که هر leader write را برای تمام leaderهای دیگر می‌فرستد | مسیرهای متعدد و fault tolerance بهتر دارد، اما ممکن است messageها out of order برسند. |
+| Multi-Datacenter Replication | replication میان datacenterهای مختلف | نزدیکی به user، تحمل outage datacenter و local write را ممکن می‌کند. |
+| Offline Operation | ادامهٔ read و write هنگام قطع connection و sync کردن بعد از online شدن | برای applicationهای deviceمحور مانند calendar مناسب است، اما lag و conflict بیشتری دارد. |
+| Collaborative Editing | edit هم‌زمان document توسط چند user با replication asynchronous | collaboration سریع را ممکن می‌کند، اما به conflict resolution نیاز دارد. |
+| Concurrent Write | writeهای تقریباً هم‌زمان روی replicaهای مختلف بدون order سراسری | می‌تواند valueهای متناقض و write conflict ایجاد کند. |
+| Replication Loop | گردش بی‌نهایت data change در topology | با identifier و track کردن nodeهای عبورشده باید از آن جلوگیری شود. |
+| Version Vector | metadata برای track کردن version و causal order تغییرات replicaها | برای تشخیص dependency و order صحیح eventها در replication استفاده می‌شود. |
