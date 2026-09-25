@@ -233,21 +233,19 @@ db.observations.aggregate([
 
 ## Key Terms
 
-| English Term | Persian Explanation | Engineering Meaning |
-|---|---|---|
-| Query Language | زبان بیان query برای خواندن یا پردازش داده | interfaceی است که به application اجازه می‌دهد خواستهٔ خود را با syntax مشخص به database منتقل کند. |
-| Declarative Query | queryای که نتیجهٔ موردنظر را مشخص می‌کند، نه مراحل رسیدن به آن | database می‌تواند execution plan، index و ترتیب operationها را خودش انتخاب و optimize کند. |
-| Imperative Query | query یا APIای که مراحل و ترتیب اجرای operationها را مشخص می‌کند | کنترل بیشتری به application می‌دهد، اما coupling آن با implementation و access path بیشتر است. |
-| Declarative Programming | برنامه‌نویسی بر اساس توصیف result یا rule، بدون تعیین algorithm دقیق | abstraction و امکان optimization خودکار را افزایش می‌دهد. |
-| Imperative Programming | برنامه‌نویسی با تعیین گام‌ها و ترتیب اجرای آن‌ها | رفتار اجرایی را صریح کنترل می‌کند، اما parallelization و تغییر implementation دشوارتر می‌شود. |
-| Relational Algebra | مجموعه‌ای از operationهای formal برای کار با relationها | مبنای نظری بسیاری از queryهای relational و SQL است. |
-| Query Execution | اجرای عملی query روی داده | شامل انتخاب plan، خواندن index، join، filter، grouping و تولید result است. |
-| Parallel Processing | اجرای هم‌زمان بخش‌های یک کار روی چند core یا machine | با تقسیم کار می‌تواند throughput را افزایش دهد، به شرطی که taskها قابلیت parallel شدن داشته باشند. |
-| MapReduce | programming model برای پردازش داده در دو مرحلهٔ map و reduce | اجرای distributed روی دادهٔ بزرگ را ممکن می‌کند، اما نسبت به query languageهای declarative سطح پایین‌تری دارد. |
-| Map Function | functionی که ورودی‌ها را می‌خواند و key-value تولید می‌کند | داده را به خروجی‌های قابل group شدن برای مرحلهٔ reduce تبدیل می‌کند. |
-| Reduce Function | functionی که valueهای مربوط به یک key را ترکیب می‌کند | aggregation یا محاسبهٔ نهایی هر گروه را انجام می‌دهد. |
-| Pure Function | functionی بدون وابستگی بیرونی و بدون side effect | اجرای مجدد، جابه‌جایی و parallel کردن آن در distributed system امن‌تر است. |
-| Side Effect | تغییری خارج از result function، مانند write یا تغییر state مشترک | اجرای مجدد یا موازی function را دشوار و احتمال inconsistency را بیشتر می‌کند. |
-| Distributed Query Execution | اجرای query روی چند machine یا node | برای پردازش datasetهای بزرگ استفاده می‌شود و به coordination و تقسیم کار نیاز دارد. |
-| Aggregation Pipeline | query language مرحله‌ای MongoDB برای filter و group کردن داده | جایگزینی declarativeتر برای بسیاری از queryهای MapReduce است. |
-| Composability | قابلیت ترکیب componentها یا operationها برای ساختن behavior پیچیده‌تر | abstractionها را reusable می‌کند و طراحی pipelineهای قابل‌گسترش را آسان‌تر می‌سازد. |
+- `Query Language` — زبان بیان query برای خواندن یا پردازش داده؛ interfaceی است که به application اجازه می‌دهد خواستهٔ خود را با syntax مشخص به database منتقل کند.
+- `Declarative Query` — queryای که نتیجهٔ موردنظر را مشخص می‌کند، نه مراحل رسیدن به آن؛ database می‌تواند execution plan، index و ترتیب operationها را خودش انتخاب و optimize کند.
+- `Imperative Query` — query یا APIای که مراحل و ترتیب اجرای operationها را مشخص می‌کند؛ کنترل بیشتری به application می‌دهد، اما coupling آن با implementation و access path بیشتر است.
+- `Declarative Programming` — برنامه‌نویسی بر اساس توصیف result یا rule، بدون تعیین algorithm دقیق؛ abstraction و امکان optimization خودکار را افزایش می‌دهد.
+- `Imperative Programming` — برنامه‌نویسی با تعیین گام‌ها و ترتیب اجرای آن‌ها؛ رفتار اجرایی را صریح کنترل می‌کند، اما parallelization و تغییر implementation دشوارتر می‌شود.
+- `Relational Algebra` — مجموعه‌ای از operationهای formal برای کار با relationها؛ مبنای نظری بسیاری از queryهای relational و SQL است.
+- `Query Execution` — اجرای عملی query روی داده؛ شامل انتخاب plan، خواندن index، join، filter، grouping و تولید result است.
+- `Parallel Processing` — اجرای هم‌زمان بخش‌های یک کار روی چند core یا machine؛ با تقسیم کار می‌تواند throughput را افزایش دهد، به شرطی که taskها قابلیت parallel شدن داشته باشند.
+- `MapReduce` — programming model برای پردازش داده در دو مرحلهٔ map و reduce؛ اجرای distributed روی دادهٔ بزرگ را ممکن می‌کند، اما نسبت به query languageهای declarative سطح پایین‌تری دارد.
+- `Map Function` — functionی که ورودی‌ها را می‌خواند و key-value تولید می‌کند؛ داده را به خروجی‌های قابل group شدن برای مرحلهٔ reduce تبدیل می‌کند.
+- `Reduce Function` — functionی که valueهای مربوط به یک key را ترکیب می‌کند؛ aggregation یا محاسبهٔ نهایی هر گروه را انجام می‌دهد.
+- `Pure Function` — functionی بدون وابستگی بیرونی و بدون side effect؛ اجرای مجدد، جابه‌جایی و parallel کردن آن در distributed system امن‌تر است.
+- `Side Effect` — تغییری خارج از result function، مانند write یا تغییر state مشترک؛ اجرای مجدد یا موازی function را دشوار و احتمال inconsistency را بیشتر می‌کند.
+- `Distributed Query Execution` — اجرای query روی چند machine یا node؛ برای پردازش datasetهای بزرگ استفاده می‌شود و به coordination و تقسیم کار نیاز دارد.
+- `Aggregation Pipeline` — query language مرحله‌ای MongoDB برای filter و group کردن داده؛ جایگزینی declarativeتر برای بسیاری از queryهای MapReduce است.
+- `Composability` — قابلیت ترکیب componentها یا operationها برای ساختن behavior پیچیده‌تر؛ abstractionها را reusable می‌کند و طراحی pipelineهای قابل‌گسترش را آسان‌تر می‌سازد.

@@ -175,3 +175,71 @@
 | Full-Text Search | جست‌وجو در متن بر اساس کلمه، عبارت یا الگوی زبانی | معمولاً با search index انجام می‌شود و در کنار database اصلی قرار می‌گیرد. |
 | Information Retrieval | حوزهٔ پیدا کردن اطلاعات مرتبط از میان مجموعه‌ای از documentها | مبنای فنی search engineها و systemهای جست‌وجوی متن است. |
 | Data Processing | اجرای operationها برای تبدیل، تحلیل یا استخراج داده | می‌تواند به‌صورت transactional، batch، online یا distributed انجام شود. |
+
+## Chapter 3
+
+| English Term | Persian Explanation | Engineering Meaning |
+|---|---|---|
+| Index | structure اضافی مشتق‌شده از data برای پیدا کردن سریع‌تر آن | read queryها را سریع می‌کند، اما معمولاً write و storage overhead ایجاد می‌کند. |
+| Hash Index | indexای که key را به offset یا value map می‌کند | برای key-value lookup سریع مناسب است، اما range query و dataset بسیار بزرگ را به‌خوبی پشتیبانی نمی‌کند. |
+| Hash Table | data structure مبتنی بر hash برای map کردن key به value | lookup معمولاً سریع است، اما به memory و مدیریت collision نیاز دارد. |
+| SSTable | فایل sorted از key-value pairها که هر key در آن یک بار ظاهر می‌شود | پایهٔ storage engineهای log-structured و مناسب merge، compression و range query است. |
+| LSM-Tree | indexing structure مبتنی بر merge و compaction فایل‌های sorted | write throughput بالا و range query efficient فراهم می‌کند، اما compaction و read از چند segment هزینه دارد. |
+| Log-Structured Storage | storage designای که writeها را به‌صورت append-only log انجام می‌دهد | sequential write و crash recovery را ساده می‌کند و معمولاً به compaction نیاز دارد. |
+| Memtable | balanced tree in-memory برای نگهداری writeهای پیش از تبدیل شدن به SSTable | writeهای جدید را مرتب نگه می‌دارد و بعداً به‌صورت sorted segment روی disk flush می‌شود. |
+| Compaction | حذف versionها و recordهای obsolete یا duplicate از segmentها | disk space را آزاد و تعداد segmentهای موردنیاز برای read را کم می‌کند. |
+| Segment | بخشی مستقل از log یا storage file | merge، compaction و مدیریت background را روی حجم‌های قابل‌کنترل ممکن می‌کند. |
+| Bloom Filter | data structure کم‌مصرف برای تشخیص احتمالی وجود key در set | disk read غیرضروری برای keyهای nonexistent را کاهش می‌دهد و false positive ممکن است داشته باشد. |
+| B-Tree | tree index متوازن با pageهای ثابت و keyهای sorted | index استاندارد بسیاری از databaseها برای lookup و range query است. |
+| B+ Tree | variantای از B-tree با optimizationهایی مانند نگهداری keyهای کامل در leaf pageها | برای افزایش branching factor و بهبود scan ترتیبی در برخی storage engineها استفاده می‌شود. |
+| B-Tree Node | page یا گره‌ای در B-tree که key و reference به childها را نگه می‌دارد | range keyها را تقسیم می‌کند و traversal از root تا leaf را ممکن می‌سازد. |
+| Page | block با اندازهٔ ثابت در storage | واحد read و write در B-tree و بسیاری از page-oriented storage engineهاست. |
+| Branching Factor | تعداد child referenceهای قابل نگهداری در یک B-tree page | هرچه بیشتر باشد، depth tree و تعداد page access لازم کمتر می‌شود. |
+| Write-Ahead Log | logای که modification پیش از اعمال روی data اصلی در آن write می‌شود | برای recovery پس از crash و بازگرداندن index به state consistent استفاده می‌شود. |
+| Sequential Write | write کردن data در sequence پیوسته | معمولاً از random write سریع‌تر است، به‌خصوص روی diskهای مغناطیسی. |
+| Random Access | دسترسی به locationهای پراکنده بدون ترتیب sequential | روی disk می‌تواند پرهزینه باشد و performance storage engine را کاهش دهد. |
+| Range Query | query برای تمام keyها یا recordهای داخل یک محدوده | به data sorted و index مناسب برای اجرای efficient نیاز دارد. |
+| Secondary Index | index اضافی غیر از primary key index | برای query بر اساس fieldهای دیگر و اجرای efficient join استفاده می‌شود. |
+| Clustered Index | indexای که data اصلی row را در خود index نگه می‌دارد | hop به heap file را حذف می‌کند، اما storage و write overhead بیشتری دارد. |
+| Covering Index | indexی که بخشی از columnهای لازم query را نیز در خود دارد | بعضی queryها را فقط با index پاسخ می‌دهد و نیاز به read از data اصلی را کم می‌کند. |
+| Multi-Column Index | indexی برای query هم‌زمان چند column یا field | برای شرط‌های ترکیبی و queryهای چندبعدی استفاده می‌شود. |
+| Full-Text Index | index تخصصی برای جست‌وجوی termها در documentهای متنی | search بر اساس word، synonym، variation و edit distance را پشتیبانی می‌کند. |
+| In-Memory Index | indexی که به‌طور کامل در memory نگهداری می‌شود | lookup را سریع می‌کند، اما اندازهٔ dataset به memory موجود محدود می‌شود. |
+| Write Amplification | تبدیل شدن یک logical write به چند physical write روی disk | مصرف bandwidth و فرسودگی SSD را افزایش می‌دهد و برای انتخاب storage engine مهم است. |
+| Heap File | محل نگهداری rowها در order غیرمشخص، جدا از index | از duplicate شدن data میان secondary indexها جلوگیری می‌کند، اما ممکن است hop اضافی ایجاد کند. |
+| Multi-Dimensional Index | index برای query هم‌زمان چند dimension | برای geospatial data و queryهایی مانند range روی latitude و longitude مناسب است. |
+| Fuzzy Search | جست‌وجوی valueهای مشابه، نه فقط valueهای دقیق | typo، synonym، variation زبانی و edit distance را پوشش می‌دهد. |
+| In-Memory Database | databaseای که read و processing آن عمدتاً از memory انجام می‌شود | latency پایین‌تری دارد و durability آن با log، snapshot، replication یا hardware ویژه تأمین می‌شود. |
+| Anti-Caching | انتقال کم‌استفاده‌ترین data از memory به disk و بازگرداندن آن هنگام access | امکان مدیریت dataset بزرگ‌تر از memory را بدون معماری کاملاً disk-centric فراهم می‌کند. |
+| Transaction Processing | پردازش read و writeهایی که یک logical unit را تشکیل می‌دهند | برای requestهای interactive و low-latency در operational systemها استفاده می‌شود. |
+| Online Transaction Processing (OLTP) | الگوی پردازش transactionهای interactive در applicationهای عملیاتی | معمولاً شامل lookup تعداد کمی record با key و update بر اساس input user است. |
+| Analytics | تحلیل حجم بزرگی از data برای استخراج aggregate و insight | به‌جای بازگرداندن raw recordها، statisticهای قابل استفاده برای تصمیم‌گیری تولید می‌کند. |
+| Online Analytical Processing (OLAP) | اجرای analytic queryهای interactive روی حجم بزرگی از data | برای decision support و business intelligence به کار می‌رود و معمولاً با scan و aggregation همراه است. |
+| Data Warehouse | database جداگانه برای data گردآوری‌شده از چند operational system | workloadهای analytic را از OLTP جدا می‌کند و برای queryهای تحلیلی optimize می‌شود. |
+| Extract-Transform-Load (ETL) | استخراج data، transform و clean کردن آن و load کردن result در warehouse | pipeline انتقال data از OLTP systemها به data warehouse است. |
+| Fact Table | table مرکزی در star schema که هر row آن یک event یا اندازه‌گیری business است | حجم زیادی از eventها و metricهای قابل‌aggregate را نگه می‌دارد. |
+| Dimension Table | table نگهدارندهٔ context و ویژگی‌های fact | entityهایی مانند product، customer، store یا date را برای تحلیل توصیف می‌کند. |
+| Star Schema | schema تحلیلی با fact table در مرکز و dimension tableها در اطراف | برای query و تحلیل ساده‌تر در data warehouse طراحی شده است. |
+| Snowflake Schema | variant نرمال‌شده‌تر star schema با dimensionهای شکسته‌شده به subdimension | duplication را کاهش می‌دهد، اما query و کار analyst را پیچیده‌تر می‌کند. |
+| Analytical Query | queryای که تعداد زیادی record را scan و aggregate می‌کند | برای محاسبهٔ count، sum، average و metricهای business استفاده می‌شود. |
+| Operational System | system اجرای workload جاری business و requestهای customer-facing | معمولاً به availability بالا و low latency برای OLTP نیاز دارد. |
+| Reporting | تولید report از data برای پایش و تصمیم‌گیری | result queryها را به شکل قابل‌فهم برای manager یا analyst ارائه می‌کند. |
+| Business Intelligence | استفاده از data و analysis برای پشتیبانی از تصمیم‌های business | report و insight را از data عملیاتی و تاریخی استخراج می‌کند. |
+| Dimensional Modeling | مدل‌سازی data تحلیلی با fact و dimension tableها | ساختار رایج star schema و snowflake schema در data warehouse است. |
+| Column-Oriented Storage | روشی که valueهای هر column را کنار هم ذخیره می‌کند، نه valueهای هر row را | فقط columnهای موردنیاز query را می‌خواند و برای workloadهای تحلیلی مناسب است. |
+| Column Store | storage engine یا databaseای با layout اصلی column-oriented | برای scan و aggregation روی تعداد زیادی row و تعداد کمی column بهینه می‌شود. |
+| Column Compression | فشرده‌سازی مستقل columnها | disk I/O و حجم data موردنیاز برای queryهای تحلیلی را کاهش می‌دهد. |
+| Bitmap Encoding | نمایش valueهای column با bitmapهای جداگانه و یک bit برای هر row | filter و ترکیب شرط‌ها را با عملیات bitwise روی data warehouse efficient می‌کند. |
+| Run-Length Encoding | تبدیل sequenceهای تکراری به value و طول آن sequence | برای columnها و bitmapهای دارای repetition زیاد، compression compact فراهم می‌کند. |
+| Columnar Format | format ذخیره‌سازی‌ای که data را به‌صورت columnar سازمان‌دهی می‌کند | خواندن columnهای منتخب را efficient می‌کند و می‌تواند برای data modelهای غیررابطه‌ای هم به کار رود. |
+| Vectorized Processing | پردازش batchای chunkهای data با استفادهٔ efficient از CPU cache و SIMD | تعداد function callها و هزینهٔ پردازش رکوردبه‌رکورد را کاهش می‌دهد. |
+| Sort Order | ترتیب از پیش تعیین‌شدهٔ rowها در storage | filtering، indexing و compression را بر اساس query pattern بهبود می‌دهد. |
+| Column Family | groupingای از columnها در systemهایی مانند Cassandra و HBase | برخلاف column store واقعی، معمولاً columnهای هر row را درون family کنار هم نگه می‌دارد. |
+| Data Cube | ساختار چندبعدی از aggregateهای گروه‌بندی‌شده بر اساس dimensionهای مختلف | بعضی queryهای تحلیلی را با precompute کردن result بسیار سریع می‌کند. |
+| Materialized View | copy ذخیره‌شده روی disk از result یک query | read را سریع‌تر می‌کند، اما با نیاز به update شدن هنگام تغییر data، write را پرهزینه‌تر می‌کند. |
+| Aggregation | ترکیب مجموعه‌ای از rowها برای تولید count، sum، average، minimum یا maximum | برای استخراج metric و summary از data تحلیلی استفاده می‌شود. |
+| Update-in-Place Storage | رویکرد ذخیره‌سازی که data را در pageهای fixed-size نگه می‌دارد و همان pageها را overwrite می‌کند | برای B-treeها و workloadهایی مناسب است که update مستقیم record اهمیت دارد. |
+| Query Performance | سرعت و هزینهٔ اجرای query | با زمان پاسخ، throughput و resource مصرف‌شده برای اجرای query سنجیده می‌شود. |
+| Query Optimization | انتخاب plan و روش اجرای مناسب برای query | هزینهٔ خواندن و پردازش data را بر اساس access pattern و indexها کاهش می‌دهد. |
+| Disk Seek Time | زمان رسیدن head دیسک به location موردنظر | در workloadهای random-access می‌تواند bottleneck اصلی storage engine باشد. |
+| Disk Bandwidth | نرخ انتقال data بین disk و memory | در scanهای بزرگ و queryهای تحلیلی معمولاً محدودکننده‌تر از seek time است. |

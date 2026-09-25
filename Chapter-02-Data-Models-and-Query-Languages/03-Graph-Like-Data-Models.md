@@ -410,25 +410,23 @@ Ruleها می‌توانند به ruleهای دیگر reference دهند؛ در�
 
 ## Key Terms
 
-| English Term | Persian Explanation | Engineering Meaning |
-|---|---|---|
-| Graph Database | databaseای که داده را به‌صورت vertex و edge ذخیره و query می‌کند | برای داده‌های به‌شدت interconnected و traversalهای چندمرحله‌ای مناسب است. |
-| Graph Model | مدل نمایش داده به‌صورت node و relationship | ارتباط میان entityها را به‌عنوان بخش اصلی data model در نظر می‌گیرد. |
-| Property Graph | graphی که vertex و edge در آن identifier، label و property دارند | انعطاف‌پذیری زیادی برای مدل کردن entityها و relationshipهای متنوع فراهم می‌کند. |
-| Vertex | node یا entity در graph | نقطه‌ای که object، person، location یا هر entity دیگر را نمایش می‌دهد. |
-| Edge | connection جهت‌دار یا رابطه میان دو vertex | نوع و جهت relationship میان entityها را نشان می‌دهد و می‌تواند property داشته باشد. |
-| Graph Query | query برای پیدا کردن vertex، edge یا pattern در graph | معمولاً شامل pattern matching یا traversal در مسیرهای چندمرحله‌ای است. |
-| Graph Traversal | پیمایش graph با دنبال کردن edgeها از یک vertex به vertexهای دیگر | برای پیدا کردن connectionهای مستقیم یا زنجیره‌ای و حل queryهای relationshipمحور استفاده می‌شود. |
-| Cypher | declarative query language مربوط به Neo4j و property graphها | patternهای graph را با syntax خوانا برای match، create و return بیان می‌کند. |
-| Triple-Store | datastoreای که اطلاعات را به‌صورت subject، predicate و object ذخیره می‌کند | data model ساده‌ای برای graph data و RDF فراهم می‌کند. |
-| Subject | بخش اول یک RDF triple | vertex یا entityای را مشخص می‌کند که statement دربارهٔ آن است. |
-| Predicate | بخش دوم یک RDF triple | نوع property یا relationship میان subject و object را مشخص می‌کند. |
-| Object | بخش سوم یک RDF triple | value یک property یا vertex مقصد یک relationship است. |
-| SPARQL | declarative query language برای triple-storeهای مبتنی بر RDF | patternهای RDF را برای جست‌وجو و ترکیب graph data بیان می‌کند. |
-| RDF | data model استاندارد برای بیان resourceها و relationshipهای آن‌ها | امکان تبادل machine-readable data میان systemها و namespaceهای مستقل را فراهم می‌کند. |
-| Turtle | syntax خوانا برای نوشتن RDF tripleها | نمایش compactتری از RDF است و برای خواندن و نوشتن انسانی مناسب‌تر از RDF/XML است. |
-| Datalog | query language rule-based و declarative، مبتنی بر predicate و rule | queryهای recursive و قابل‌ترکیب را با derive کردن factهای جدید از داده و ruleها بیان می‌کند. |
-| Pattern Matching | پیدا کردن بخش‌هایی از graph یا data که با یک pattern مشخص سازگارند | پایهٔ queryهایی مانند MATCH در Cypher و patternهای SPARQL است. |
-| Recursive Query | queryای که برای رسیدن به result به خودش یا نتیجهٔ مرحلهٔ قبل reference می‌دهد | برای traversal با عمق نامشخص و common table expressionهای recursive استفاده می‌شود. |
-| Graph Processing | پردازش الگوریتمی روی مجموعه‌ای از vertexها و edgeها | برای کارهایی مانند shortest path، ranking و تحلیل connectionها به کار می‌رود. |
-| Query Language | زبان بیان query برای خواندن یا پردازش داده | interfaceی است که خواستهٔ application را با syntax مشخص به datastore منتقل می‌کند. |
+- `Graph Database` — databaseای که داده را به‌صورت vertex و edge ذخیره و query می‌کند؛ برای داده‌های به‌شدت interconnected و traversalهای چندمرحله‌ای مناسب است.
+- `Graph Model` — مدل نمایش داده به‌صورت node و relationship؛ ارتباط میان entityها را به‌عنوان بخش اصلی data model در نظر می‌گیرد.
+- `Property Graph` — graphی که vertex و edge در آن identifier، label و property دارند؛ انعطاف‌پذیری زیادی برای مدل کردن entityها و relationshipهای متنوع فراهم می‌کند.
+- `Vertex` — node یا entity در graph؛ نقطه‌ای که object، person، location یا هر entity دیگر را نمایش می‌دهد.
+- `Edge` — connection جهت‌دار یا رابطه میان دو vertex؛ نوع و جهت relationship میان entityها را نشان می‌دهد و می‌تواند property داشته باشد.
+- `Graph Query` — query برای پیدا کردن vertex، edge یا pattern در graph؛ معمولاً شامل pattern matching یا traversal در مسیرهای چندمرحله‌ای است.
+- `Graph Traversal` — پیمایش graph با دنبال کردن edgeها از یک vertex به vertexهای دیگر؛ برای پیدا کردن connectionهای مستقیم یا زنجیره‌ای و حل queryهای relationshipمحور استفاده می‌شود.
+- `Cypher` — declarative query language مربوط به Neo4j و property graphها؛ patternهای graph را با syntax خوانا برای match، create و return بیان می‌کند.
+- `Triple-Store` — datastoreای که اطلاعات را به‌صورت subject، predicate و object ذخیره می‌کند؛ data model ساده‌ای برای graph data و RDF فراهم می‌کند.
+- `Subject` — بخش اول یک RDF triple؛ vertex یا entityای را مشخص می‌کند که statement دربارهٔ آن است.
+- `Predicate` — بخش دوم یک RDF triple؛ نوع property یا relationship میان subject و object را مشخص می‌کند.
+- `Object` — بخش سوم یک RDF triple؛ value یک property یا vertex مقصد یک relationship است.
+- `SPARQL` — declarative query language برای triple-storeهای مبتنی بر RDF؛ patternهای RDF را برای جست‌وجو و ترکیب graph data بیان می‌کند.
+- `RDF` — data model استاندارد برای بیان resourceها و relationshipهای آن‌ها؛ امکان تبادل machine-readable data میان systemها و namespaceهای مستقل را فراهم می‌کند.
+- `Turtle` — syntax خوانا برای نوشتن RDF tripleها؛ نمایش compactتری از RDF است و برای خواندن و نوشتن انسانی مناسب‌تر از RDF/XML است.
+- `Datalog` — query language rule-based و declarative، مبتنی بر predicate و rule؛ queryهای recursive و قابل‌ترکیب را با derive کردن factهای جدید از داده و ruleها بیان می‌کند.
+- `Pattern Matching` — پیدا کردن بخش‌هایی از graph یا data که با یک pattern مشخص سازگارند؛ پایهٔ queryهایی مانند MATCH در Cypher و patternهای SPARQL است.
+- `Recursive Query` — queryای که برای رسیدن به result به خودش یا نتیجهٔ مرحلهٔ قبل reference می‌دهد؛ برای traversal با عمق نامشخص و common table expressionهای recursive استفاده می‌شود.
+- `Graph Processing` — پردازش الگوریتمی روی مجموعه‌ای از vertexها و edgeها؛ برای کارهایی مانند shortest path، ranking و تحلیل connectionها به کار می‌رود.
+- `Query Language` — زبان بیان query برای خواندن یا پردازش داده؛ interfaceی است که خواستهٔ application را با syntax مشخص به datastore منتقل می‌کند.

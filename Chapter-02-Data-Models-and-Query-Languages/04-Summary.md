@@ -25,20 +25,18 @@ Data modelها موضوع بسیار گسترده‌ای هستند و در ای
 
 ## Key Terms
 
-| English Term | Persian Explanation | Engineering Meaning |
-|---|---|---|
-| Data Model | مدل سازمان‌دهی و نمایش داده | مشخص می‌کند داده چگونه structure پیدا کند و relationshipهای میان داده‌ها چگونه بیان و query شوند. |
-| Relational Model | مدل مبتنی بر table، row و column | برای داده‌های structureیافته و relationshipهایی که با join قابل بیان‌اند مناسب است. |
-| Document Model | مدل مبتنی بر documentهای self-contained | برای داده‌هایی با structure درختی و relationshipهای کم میان documentها مناسب است. |
-| Graph Model | مدل مبتنی بر vertex و edge | برای داده‌های interconnected که relationshipها بخش اصلی آن‌ها هستند مناسب است. |
-| Query Language | زبان بیان خواستهٔ application از datastore | روش دسترسی، filter، ترکیب و پردازش داده را مشخص می‌کند. |
-| Declarative Query | queryای که result موردنظر را توصیف می‌کند، نه مراحل اجرای آن را | به database اجازه می‌دهد execution plan و optimization را خودش انتخاب کند. |
-| Data Processing | اجرای operationها برای تبدیل، تحلیل یا استخراج داده | می‌تواند به‌صورت transactional، batch، online یا distributed انجام شود. |
-| Schema | structure و قواعد مورد انتظار برای داده | مشخص می‌کند چه fieldها، typeها و relationshipهایی معتبر هستند و چه زمانی enforce شوند. |
-| MapReduce | programming model پردازش داده در مراحل map و reduce | برای پردازش distributed دادهٔ بزرگ استفاده می‌شود و در برخی NoSQL systemها query ارائه می‌کند. |
-| Graph Query | query برای match کردن pattern یا traverse کردن graph | برای یافتن entityها و relationshipهای مستقیم یا چندمرحله‌ای به کار می‌رود. |
-| Query Optimizer | جزء database برای انتخاب strategy اجرای query | indexها، joinها و ترتیب operationها را برای performance بهتر انتخاب می‌کند. |
-| Sequence-Similarity Search | جست‌وجوی stringهایی که از نظر sequence شبیه یکدیگرند | در genome analysis برای مقایسهٔ DNA sequenceها با datasetهای بزرگ استفاده می‌شود. |
-| Genome Database | database تخصصی برای ذخیره و query کردن داده‌های genome | برای داده‌هایی طراحی شده که queryهای آن‌ها با relational، document یا graph database معمولی به‌خوبی پوشش داده نمی‌شود. |
-| Full-Text Search | جست‌وجو در متن بر اساس کلمه، عبارت یا الگوی زبانی | معمولاً با search index انجام می‌شود و در کنار database اصلی قرار می‌گیرد. |
-| Information Retrieval | حوزهٔ پیدا کردن اطلاعات مرتبط از میان مجموعه‌ای از documentها | مبنای فنی search engineها و systemهای جست‌وجوی متن است. |
+- `Data Model` — مدل سازمان‌دهی و نمایش داده؛ مشخص می‌کند داده چگونه structure پیدا کند و relationshipهای میان داده‌ها چگونه بیان و query شوند.
+- `Relational Model` — مدل مبتنی بر table، row و column؛ برای داده‌های structureیافته و relationshipهایی که با join قابل بیان‌اند مناسب است.
+- `Document Model` — مدل مبتنی بر documentهای self-contained؛ برای داده‌هایی با structure درختی و relationshipهای کم میان documentها مناسب است.
+- `Graph Model` — مدل مبتنی بر vertex و edge؛ برای داده‌های interconnected که relationshipها بخش اصلی آن‌ها هستند مناسب است.
+- `Query Language` — زبان بیان خواستهٔ application از datastore؛ روش دسترسی، filter، ترکیب و پردازش داده را مشخص می‌کند.
+- `Declarative Query` — queryای که result موردنظر را توصیف می‌کند، نه مراحل اجرای آن را؛ به database اجازه می‌دهد execution plan و optimization را خودش انتخاب کند.
+- `Data Processing` — اجرای operationها برای تبدیل، تحلیل یا استخراج داده؛ می‌تواند به‌صورت transactional، batch، online یا distributed انجام شود.
+- `Schema` — structure و قواعد مورد انتظار برای داده؛ مشخص می‌کند چه fieldها، typeها و relationshipهایی معتبر هستند و چه زمانی enforce شوند.
+- `MapReduce` — programming model پردازش داده در مراحل map و reduce؛ برای پردازش distributed دادهٔ بزرگ استفاده می‌شود و در برخی NoSQL systemها query ارائه می‌کند.
+- `Graph Query` — query برای match کردن pattern یا traverse کردن graph؛ برای یافتن entityها و relationshipهای مستقیم یا چندمرحله‌ای به کار می‌رود.
+- `Query Optimizer` — جزء database برای انتخاب strategy اجرای query؛ indexها، joinها و ترتیب operationها را برای performance بهتر انتخاب می‌کند.
+- `Sequence-Similarity Search` — جست‌وجوی stringهایی که از نظر sequence شبیه یکدیگرند؛ در genome analysis برای مقایسهٔ DNA sequenceها با datasetهای بزرگ استفاده می‌شود.
+- `Genome Database` — database تخصصی برای ذخیره و query کردن داده‌های genome؛ برای داده‌هایی طراحی شده که queryهای آن‌ها با relational، document یا graph database معمولی به‌خوبی پوشش داده نمی‌شود.
+- `Full-Text Search` — جست‌وجو در متن بر اساس کلمه، عبارت یا الگوی زبانی؛ معمولاً با search index انجام می‌شود و در کنار database اصلی قرار می‌گیرد.
+- `Information Retrieval` — حوزهٔ پیدا کردن اطلاعات مرتبط از میان مجموعه‌ای از documentها؛ مبنای فنی search engineها و systemهای جست‌وجوی متن است.
