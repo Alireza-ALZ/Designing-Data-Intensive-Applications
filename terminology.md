@@ -243,3 +243,64 @@
 | Query Optimization | انتخاب plan و روش اجرای مناسب برای query | هزینهٔ خواندن و پردازش data را بر اساس access pattern و indexها کاهش می‌دهد. |
 | Disk Seek Time | زمان رسیدن head دیسک به location موردنظر | در workloadهای random-access می‌تواند bottleneck اصلی storage engine باشد. |
 | Disk Bandwidth | نرخ انتقال data بین disk و memory | در scanهای بزرگ و queryهای تحلیلی معمولاً محدودکننده‌تر از seek time است. |
+
+## Chapter 4
+
+| English Term | Persian Explanation | Engineering Meaning |
+|---|---|---|
+| Encoding | تبدیل data از representation درون memory به sequence مستقل از byteها | data را برای storage یا انتقال روی network به format قابل‌تفسیر برای process دیگر تبدیل می‌کند. |
+| Decoding | بازسازی data از byte sequence encodedشده | consumer را قادر می‌کند representation ذخیره‌شده یا دریافتی را به data structure قابل استفاده تبدیل کند. |
+| Serialization | نام رایج encoding کردن object به byte sequence | در libraryها و APIهای مختلف برای آماده‌سازی data جهت storage یا انتقال استفاده می‌شود. |
+| Deserialization | بازگرداندن object یا data structure از representation serialized | مکمل serialization است و byte sequence را به data قابل استفاده تبدیل می‌کند. |
+| Data Encoding Format | قرارداد و structure مربوط به byte sequence | نحوهٔ نمایش، storage و انتقال data را بین processها مشخص می‌کند. |
+| Language-Specific Format | encoding وابسته به object model یا runtime یک programming language | استفادهٔ سریع و convenient را ممکن می‌کند، اما interoperability و evolution ضعیف‌تری دارد. |
+| Binary Encoding | نمایش machine-oriented data با byteها به‌جای متن human-readable | معمولاً compactتر و سریع‌تر parse می‌شود، اما نیازمند tooling یا schema مناسب است. |
+| Schema Compatibility | توانایی schemaهای versionهای مختلف برای read و write کردن data یکدیگر | از شکست deployment هنگام coexist کردن code و data قدیمی و جدید جلوگیری می‌کند. |
+| Backward Compatibility | توانایی code یا schema جدید برای خواندن data قدیمی | evolution را ممکن می‌کند بدون اینکه تمام data قبلی فوراً rewrite شود. |
+| Forward Compatibility | توانایی code یا schema قدیمی برای خواندن data جدید | اجازه می‌دهد versionهای قدیمی در زمان rollout با data جدید coexist کنند. |
+| Field Identifier | شناسهٔ field در binary encoding | parser با استفاده از آن field را بدون وابستگی به نام یا position پیدا می‌کند. |
+| Field Tag | number کوتاه و پایدار برای شناسایی field | در Thrift و Protocol Buffers برای compact encoding و schema evolution استفاده می‌شود. |
+| Optional Field | fieldای که نبودنش در record مجاز است | برای اضافه کردن fieldهای جدید بدون شکستن backward compatibility مناسب است. |
+| Required Field | fieldای که باید در record وجود داشته باشد | validation قوی‌تری ایجاد می‌کند، اما اضافه کردن آن به schema مستقر می‌تواند compatibility را بشکند. |
+| Default Value | value جایگزین هنگام نبودن field در data | reader با استفاده از آن recordهای قدیمی را به schema جدید resolve می‌کند. |
+| Type System | مجموعهٔ datatypeها و ruleهای تفسیر و validation valueها | مشخص می‌کند data چگونه encode، decode و type-check شود. |
+| Data Representation | شکل داخلی یا external data | می‌تواند object در memory یا byte sequence در file و network باشد. |
+| Thrift | binary encoding و interface definition system مبتنی بر schema | با field tag و code generation، data exchange میان languageهای مختلف را پشتیبانی می‌کند. |
+| Protocol Buffers | binary encoding system مبتنی بر schema با field tag | encoding compact و schema evolution را با markerهایی مانند optional و repeated فراهم می‌کند. |
+| Avro | binary encoding format مبتنی بر schema با writer و reader schema | تفاوت schemaها را هنگام read resolve می‌کند و برای data pipelineها مناسب است. |
+| Writer’s Schema | schemaای که producer هنگام encode کردن data استفاده کرده است | مشخص می‌کند byte sequence اولیه چگونه تولید شده و برای schema resolution لازم است. |
+| Reader’s Schema | schemaای که consumer هنگام decode کردن data انتظار دارد | شکل data موردنیاز application را مشخص می‌کند و با writer schema resolve می‌شود. |
+| Union Type | typeای که یک field را به یکی از چند type مشخص محدود می‌کند | برای نمایش valueهایی مانند `null`، `long` یا `string` در Avro استفاده می‌شود. |
+| Variable-Length Encoding | encode کردن number با تعداد byte متناسب با اندازهٔ آن | حجم numberهای کوچک را کاهش می‌دهد و در CompactProtocol و Avro به کار می‌رود. |
+| Code Generation | تولید خودکار code یا class از روی schema | type checking، autocompletion و encode/decode کردن strongly typed را ساده می‌کند. |
+| Self-Describing File | fileای که schema یا metadata لازم برای تفسیر محتوای خود را دارد | consumer می‌تواند data را بدون documentation یا configuration جداگانه decode کند. |
+| Dataflow | مسیر و شیوهٔ انتقال data میان processها، serviceها، databaseها یا nodeها | مشخص می‌کند data در یک system از چه componentهایی عبور می‌کند و چه کسی آن را encode یا decode می‌کند. |
+| Data Encoding | تبدیل data به byte sequence برای انتقال یا storage | ارتباط میان componentهای مستقل را بدون memory مشترک ممکن می‌کند. |
+| Client | component استفاده‌کننده از API یا service | request می‌فرستد و response یا data موردنیاز را دریافت می‌کند. |
+| Server | component ارائه‌دهندهٔ API یا service | requestهای client را پردازش و response تولید می‌کند. |
+| Request | پیام یا فراخوانی client برای دریافت data یا اجرای operation | ورودی تعامل client با server یا service است. |
+| Response | result یا پیام برگشتی در پاسخ به request | خروجی interaction میان client و server است و ممکن است data یا error باشد. |
+| Service | componentی با API مشخص برای ارائهٔ functionality یا data | می‌تواند مستقل deploy و evolve شود و به clientهای مختلف service بدهد. |
+| REST | design philosophy مبتنی بر اصول HTTP برای APIهای resource-oriented | از URL، HTTP featureها و data formatهای ساده برای integration استفاده می‌کند. |
+| RESTful API | API طراحی‌شده بر اساس اصول REST | برای public APIها، experimentation و integration میان organizationها مناسب است. |
+| Remote Procedure Call (RPC) | abstraction شبیه‌ساز call کردن function یا method روی service remote | request network را ساده می‌کند، اما باید failure، timeout، latency و compatibility را صریحاً مدیریت کند. |
+| Web Service | serviceای که API آن از طریق HTTP در دسترس است | برای ارتباط clientها و serviceهای داخل یا خارج organization استفاده می‌شود. |
+| SOAP | protocol مبتنی بر XML برای network API requestها | standardها و tooling گسترده‌ای دارد، اما پیچیدگی و interoperability آن می‌تواند مشکل‌ساز باشد. |
+| WSDL | زبان مبتنی بر XML برای توصیف API یک SOAP web service | code generation برای clientهای statically typed را ممکن می‌کند. |
+| Message | واحد data در message-passing system | از sender به recipient یا consumer ارسال و معمولاً با metadata همراه می‌شود. |
+| Message Broker | واسطهٔ موقت برای ذخیره، routing و delivery message | sender را از recipient decouple می‌کند و buffer، redelivery و fan-out را فراهم می‌کند. |
+| Message-Passing System | systemی که componentها را با ارسال و دریافت message به هم متصل می‌کند | communication asynchronous و decoupled میان processها را پشتیبانی می‌کند. |
+| Asynchronous Communication | ارتباطی که sender بدون انتظار برای response یا delivery کامل ادامه می‌دهد | latency و availability componentها را از هم جدا می‌کند، اما delivery semantics اهمیت پیدا می‌کند. |
+| Synchronous Communication | ارتباطی که caller تا دریافت result یا response منتظر می‌ماند | مدل ساده‌تری برای request/response دارد، اما latency و failure remote مستقیماً caller را متوقف می‌کند. |
+| Service-Oriented Architecture (SOA) | معماری تقسیم application به serviceهای مستقل با interface مشخص | تغییر و نگهداری componentها را با جداسازی responsibilityها آسان‌تر می‌کند. |
+| Microservices Architecture | رویکرد ساخت application از serviceهای کوچک و independently deployable | اجازه می‌دهد teamها serviceها را مستقل release و evolve کنند. |
+| Service Discovery | mechanism پیدا کردن location یک service | client را از IP address و port ثابت service جدا می‌کند. |
+| Location Transparency | پنهان کردن تفاوت local و remote بودن component از caller | در RPC abstraction را ساده می‌کند، اما می‌تواند تفاوت failure و latency network را پنهان کند. |
+| Idempotence | خاصیتی که اجرای تکراری operation را از نظر effect معادل اجرای یک‌باره می‌کند | برای retry امن requestهای network و جلوگیری از duplicate action مهم است. |
+| API Versioning | مدیریت versionهای مختلف contract یک API | compatibility clientها و serverها را هنگام evolution service حفظ می‌کند. |
+| Actor Model | programming modelی که state و logic را در actorهای مستقل قرار می‌دهد | actorها با messageهای asynchronous ارتباط دارند و به‌صورت مستقل schedule می‌شوند. |
+| Distributed Actor Framework | framework اجرای actor model روی چند node | message passing، location transparency و scale کردن application را یک‌جا فراهم می‌کند. |
+| Delivery Semantics | guaranteeهای broker دربارهٔ زمان، تعداد دفعات و مقصد تحویل message | مشخص می‌کند message ممکن است lost، duplicated یا دوباره deliver شود. |
+| Message-Oriented Middleware | middlewareای که ارتباط componentها را از طریق message انجام می‌دهد | message broker را به‌عنوان واسطه‌ای میان producer و consumer به کار می‌گیرد. |
+| Future/Promise | abstraction برای result یک operation asynchronous | ترکیب requestهای parallel و مدیریت success یا failure آن‌ها را ساده می‌کند. |
+| Stream | دنبالهٔ پیوستهٔ requestها و responseها در یک call | ارتباط چندمرحله‌ای را به‌جای یک request و یک response پشتیبانی می‌کند. |
