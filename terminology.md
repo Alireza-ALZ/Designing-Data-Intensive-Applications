@@ -493,3 +493,22 @@
 | Commutative Operation | operationای که order اجرای آن روی replicaهای مختلف result نهایی را تغییر نمی‌دهد | برای merge امن updateها در replicated databaseها مفید است. |
 | Read Uncommitted | isolation level ضعیفی که dirty read را اجازه می‌دهد، اما dirty write را منع می‌کند | visibility بیشتری می‌دهد، اما application را در معرض data commit‌نشده قرار می‌دهد. |
 | Materializing Conflicts | تبدیل phantom به lock conflict روی rowهای مصنوعی و از پیش ایجادشده | workaroundای پیچیده برای enforce کردن constraintهای چندobjectی است. |
+| Serial Execution | اجرای transactionها یکی‌یکی و روی یک thread یا execution stream | با حذف concurrency، serializable isolation را ساده می‌کند، اما throughput به یک execution stream محدود می‌شود. |
+| Serializable Transaction | transactionای که execution آن با یک schedule serial سازگار است | در حضور concurrency نیز resultی معادل اجرای یکی‌یکی transactionها تولید می‌کند. |
+| Two-Phase Locking (2PL) | protocolی که lockها را تا پایان transaction نگه می‌دارد و shared و exclusive access را کنترل می‌کند | serializability را فراهم می‌کند، اما ممکن است contention، deadlock و latency بالا ایجاد کند. |
+| Shared Lock | lockای که چند reader می‌توانند هم‌زمان داشته باشند، اما با exclusive writer تعارض دارد | read concurrent را ممکن می‌کند و در predicate و index-range locking به‌کار می‌رود. |
+| Exclusive Lock | lockای که دسترسی دیگر transactionها را تا release شدن محدود می‌کند | برای write یا modify امن object استفاده می‌شود. |
+| Predicate Lock | lock روی تمام objectهایی که با یک search condition match می‌شوند، حتی phantomهای آینده | از phantom و write skew در serializable isolation جلوگیری می‌کند. |
+| Index-Range Lock | approximation کم‌هزینه‌تر predicate lock که روی rangeای از index اعمال می‌شود | compromise عملی میان دقت predicate lock و performance است. |
+| Serializable Snapshot Isolation (SSI) | optimistic concurrency control مبتنی بر snapshot isolation که serialization conflictها را detect می‌کند | serializability را با blocking کمتر و scalability بیشتر از 2PL فراهم می‌کند. |
+| Serialization Conflict | تعارضی که نشان می‌دهد ترتیب concurrent operationها با هیچ schedule serial سازگار نیست | SSI با detect کردن آن transactionهای متعارض را abort می‌کند. |
+| Pessimistic Concurrency Control | رویکردی که پیش از احتمال conflict، transaction را block می‌کند | 2PL نمونهٔ اصلی آن است و در workload با contention بالا رفتار قابل‌پیش‌بینی‌تری از retry مکرر دارد. |
+| Optimistic Concurrency Control | رویکردی که transaction را ادامه می‌دهد و در زمان commit conflict را check می‌کند | در contention پایین performance خوبی دارد، اما conflict زیاد باعث abort و retry می‌شود. |
+| Transaction Scheduling | تعیین ترتیب و interleaving اجرای operationهای transactionها | برای ارزیابی serializability و تشخیص race و conflict اهمیت دارد. |
+| Deadlock | انتظار چرخه‌ای چند transaction برای lockهایی که یکدیگر در اختیار دارند | database معمولاً با abort کردن یکی از transactionها چرخه را می‌شکند. |
+| Lock Contention | رقابت transactionها برای acquire کردن lock یکسان | باعث queue، latency ناپایدار و کاهش concurrency می‌شود. |
+| Lock Upgrade | تبدیل shared lock به exclusive lock پس از read و پیش از write | اجازه می‌دهد transaction read-modify-write را با کنترل دسترسی ادامه دهد. |
+| Stored Procedure | code کامل transaction که از قبل به database submit می‌شود و درون database اجرا می‌گردد | network round trip را حذف می‌کند و برای serial execution تک‌threadی مفید است. |
+| Cross-Partition Transaction | transactionای که به data چند partition دسترسی دارد و به coordination میان آن‌ها نیازمند است | به‌دلیل coordination overhead معمولاً کندتر و پیچیده‌تر از single-partition transaction است. |
+| Performance Overhead | هزینهٔ اضافی CPU، memory، network یا coordination ناشی از concurrency control | در انتخاب میان 2PL، serial execution و SSI نقش مهمی دارد. |
+| Tripwire | mechanismی که conflict احتمالی را notify می‌کند، بدون اینکه transactionهای دیگر را مستقیماً block کند | SSI با آن readهای transactionهای تحت تأثیر write را علامت‌گذاری می‌کند. |
