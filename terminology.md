@@ -512,3 +512,37 @@
 | Cross-Partition Transaction | transactionای که به data چند partition دسترسی دارد و به coordination میان آن‌ها نیازمند است | به‌دلیل coordination overhead معمولاً کندتر و پیچیده‌تر از single-partition transaction است. |
 | Performance Overhead | هزینهٔ اضافی CPU، memory، network یا coordination ناشی از concurrency control | در انتخاب میان 2PL، serial execution و SSI نقش مهمی دارد. |
 | Tripwire | mechanismی که conflict احتمالی را notify می‌کند، بدون اینکه transactionهای دیگر را مستقیماً block کند | SSI با آن readهای transactionهای تحت تأثیر write را علامت‌گذاری می‌کند. |
+
+## Chapter 8
+
+| English Term | Persian Explanation | Engineering Meaning |
+|---|---|---|
+| Distributed System | مجموعه‌ای از componentها یا nodeهای مستقل که از طریق network با یکدیگر کار می‌کنند | باید با network، timing و partial failureهای nondeterministic کنار بیاید. |
+| Partial Failure | وضعیتی که بخشی از distributed system fail شده، درحالی‌که بخش‌های دیگر همچنان کار می‌کنند | برخلاف failure کامل، ممکن است system گاهی موفق و گاهی fail شود و تشخیص آن دشوار باشد. |
+| Cloud Computing | مدل ارائهٔ resourceهای computing در datacenterهای multi-tenant با allocation elastic و billing مبتنی بر مصرف | معمولاً بر commodity machineها و networkهای IP/Ethernet متکی است و failure rate بالاتری دارد. |
+| Supercomputing | استفاده از supercomputerهای بزرگ و تخصصی برای workloadهای computationally intensive | معمولاً با checkpoint و restart کل workload با node failure برخورد می‌کند. |
+| High-Performance Computing (HPC) | حوزهٔ اجرای workloadهای علمی و محاسباتی سنگین روی systemهای بسیار قدرتمند | برای weather forecasting، molecular dynamics و شبیه‌سازی‌های بزرگ استفاده می‌شود. |
+| Hardware Failure | failure ناشی از component فیزیکی مانند memory، disk، connector یا machine | ممکن است به crash کامل node یا از دسترس خارج شدن بخشی از infrastructure منجر شود. |
+| Software Failure | failure ناشی از bug، error یا behavior نادرست software | می‌تواند component را بدون خرابی hardware، به‌صورت nondeterministic یا کامل fail کند. |
+| Performance Degradation | کاهش performance یا افزایش latency و failure rate بدون توقف کامل system | در systemهای بزرگ ممکن است به overload، timeout یا cascading failure منجر شود. |
+| Checkpoint | ذخیرهٔ دوره‌ای state computation روی durable storage برای restart کردن پس از failure | اجازه می‌دهد job از آخرین state ذخیره‌شده ادامه پیدا کند و کل computation از ابتدا تکرار نشود. |
+| Commodity Hardware | hardware عمومی و نسبتاً ارزان که با economies of scale تهیه می‌شود | cost را کاهش می‌دهد، اما معمولاً در مقایسه با hardware تخصصی failure rate بالاتری دارد. |
+| Error-Correcting Code | techniqueای برای تشخیص و اصلاح بعضی errorهای bit هنگام انتقال data | از data در برابر خطاهای محدود communication channel محافظت می‌کند، اما همهٔ خطاها را اصلاح نمی‌کند. |
+| Network Fault | خطایی در مسیر یا componentهای network که باعث loss، delay، reorder یا عدم دسترسی packetها می‌شود | application باید بتواند هنگام قطع، delay یا رفتار غیرقابل‌اعتماد network recover یا fail gracefully کند. |
+| Packet Loss | نرسیدن packet به مقصد، معمولاً به‌دلیل پر شدن queue، خرابی link یا fault در network | باعث retry، افزایش latency و گاهی نامشخص شدن نتیجهٔ request می‌شود. |
+| Network Congestion | رقابت packetها برای ظرفیت محدود network link که باعث queueing و افزایش delay می‌شود | می‌تواند timeout، retransmission و cascading overload ایجاد کند. |
+| Network Latency | مدت زمان انتقال data یا تکمیل round trip میان دو endpoint | مستقیماً روی response time، timeout و query performance اثر می‌گذارد. |
+| Timeout | مدت زمانی که system برای دریافت response منتظر می‌ماند، پیش از آنکه failure یا عدم دسترسی را فرض کند | انتخاب نادرست timeout میان failure detection سریع و false positive trade-off ایجاد می‌کند. |
+| Unbounded Delay | وضعیتی که برای زمان رسیدن packet یا تکمیل request هیچ upper bound تضمین‌شده‌ای وجود ندارد | در asynchronous network تشخیص failure را ذاتاً دشوار می‌کند. |
+| Synchronous Network | networkی که برای انتقال، bandwidth و maximum delay مشخصی را از پیش تضمین می‌کند | با reservation ثابت resource، bounded delay می‌دهد اما utilization کمتری دارد. |
+| Asynchronous Network | networkی که دربارهٔ زمان تحویل packet یا تحویل قطعی آن guarantee زمانی نمی‌دهد | مدل رایج Ethernet و IP است و باید queueing و delay نامحدود را تحمل کند. |
+| Bounded Delay | تضمین وجود یک maximum delay برای تحویل packet یا response | امکان تعیین timeout مبتنی بر guarantee را فراهم می‌کند؛ در internet معمولاً وجود ندارد. |
+| Flow Control | محدود کردن rate ارسال برای جلوگیری از overload شدن network link یا دریافت‌کننده | TCP با آن congestion و فشار بیش از ظرفیت receiver را کنترل می‌کند. |
+| Backpressure | سیگنالی که upstream را وادار می‌کند سرعت تولید یا ارسال data را با ظرفیت downstream هماهنگ کند | از پر شدن queue و overload زنجیره‌ای در pipelineهای distributed جلوگیری می‌کند. |
+| Round-Trip Time (RTT) | زمان رفت request یا packet به مقصد و برگشت response یا acknowledgement | برای سنجش latency و تنظیم retransmission timeout استفاده می‌شود. |
+| Phi Accrual Failure Detector | failure detectorای که با اندازه‌گیری پیوستهٔ response time و jitter، احتمال faulty بودن node را برآورد می‌کند | timeout را بر اساس distribution مشاهده‌شده تنظیم می‌کند و به constant threshold وابسته نیست. |
+| Circuit Switching | تخصیص ثابت و رزروشدهٔ bandwidth در تمام مسیر ارتباط تا پایان session | delay قابل‌پیش‌بینی می‌دهد، اما برای bursty traffic می‌تواند capacity را هدر دهد. |
+| Packet Switching | ارسال packetها با استفادهٔ dynamic و opportunistic از ظرفیت network موجود | utilization را بالا می‌برد، اما به‌دلیل queueing delay متغیر و نامحدود ایجاد می‌کند. |
+| Quality of Service (QoS) | اولویت‌بندی و scheduling traffic برای ارائهٔ guarantee یا رفتار بهتر به بعضی packetها | می‌تواند روی packet network اولویت و delay آماری کنترل‌شده ایجاد کند. |
+| Admission Control | محدود کردن ورود traffic یا rate فرستنده‌ها برای جلوگیری از overload شدن system | با رد یا rate-limit کردن traffic جدید، capacity قابل‌پیش‌بینی‌تری حفظ می‌کند. |
+| Noisy Neighbor | tenant یا workload دیگری در یک محیط shared که با مصرف زیاد resource، performance و latency دیگران را ناپایدار می‌کند | در public cloud و multi-tenant datacenter باعث variability غیرقابل‌پیش‌بینی می‌شود. |
