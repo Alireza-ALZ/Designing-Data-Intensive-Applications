@@ -161,7 +161,7 @@
 | Cypher | declarative query language مربوط به Neo4j و property graphها | patternهای graph را با syntax خوانا برای match، create و return بیان می‌کند. |
 | Triple-Store | datastoreای که اطلاعات را به‌صورت subject، predicate و object ذخیره می‌کند | data model ساده‌ای برای graph data و RDF فراهم می‌کند. |
 | Subject | بخش اول یک RDF triple | vertex یا entityای را مشخص می‌کند که statement دربارهٔ آن است. |
-| Predicate | بخش دوم یک RDF triple | نوع property یا relationship میان subject و object را مشخص می‌کند. |
+| Predicate | در query شرط matching rowها؛ در RDF بخش دوم triple | در SQL و filtering تعیین می‌کند چه rowهایی match شوند و در RDF نوع property یا relationship میان subject و object را مشخص می‌کند. |
 | Object | بخش سوم یک RDF triple | value یک property یا vertex مقصد یک relationship است. |
 | SPARQL | declarative query language برای triple-storeهای مبتنی بر RDF | patternهای RDF را برای جست‌وجو و ترکیب graph data بیان می‌کند. |
 | RDF | data model استاندارد برای بیان resourceها و relationshipهای آن‌ها | امکان تبادل machine-readable data میان systemها و namespaceهای مستقل را فراهم می‌کند. |
@@ -365,3 +365,131 @@
 | Concurrent Write | writeهای تقریباً هم‌زمان روی replicaهای مختلف بدون order سراسری | می‌تواند valueهای متناقض و write conflict ایجاد کند. |
 | Replication Loop | گردش بی‌نهایت data change در topology | با identifier و track کردن nodeهای عبورشده باید از آن جلوگیری شود. |
 | Version Vector | metadata برای track کردن version و causal order تغییرات replicaها | برای تشخیص dependency و order صحیح eventها در replication استفاده می‌شود. |
+| Leaderless Replication | replicationای که در آن هیچ leader واحدی وجود ندارد و هر replica می‌تواند مستقیماً write را بپذیرد | failover را ساده می‌کند، اما به quorum و conflict resolution نیاز دارد. |
+| Quorum | حداقل تعداد responseهای replica برای معتبر دانستن یک operation | با تنظیم `n`، `w` و `r` میان consistency، availability و latency trade-off ایجاد می‌کند. |
+| Read Quorum | حداقل تعداد replicaهایی که باید به یک read پاسخ دهند | برای افزایش احتمال مشاهدهٔ جدیدترین value استفاده می‌شود. |
+| Write Quorum | حداقل تعداد replicaهایی که باید یک write را acknowledge کنند | مشخص می‌کند write چه زمانی successful و در برابر failure قابل‌اتکا تلقی شود. |
+| Read Repair | اصلاح replica stale هنگام read از چند replica | convergence را برای valueهایی که مرتب read می‌شوند سریع‌تر می‌کند. |
+| Anti-Entropy | background process برای یافتن و رفع تفاوت میان replicaها | data missing را مستقل از read client میان replicaها کپی می‌کند. |
+| Hinted Handoff | ذخیرهٔ موقت write روی node جایگزین برای تحویل آن به replica اصلی | در زمان failure replica، availability write را در leaderless system حفظ می‌کند. |
+| Sloppy Quorum | quorumی که response را از nodeهای reachable خارج از replicaهای home می‌پذیرد | availability را بالا می‌برد، اما overlap معمول quorum را تضمین نمی‌کند. |
+| Strict Quorum | quorumی که فقط replicaهای home مربوط به یک key را در نظر می‌گیرد | شرط overlap میان read و write quorum را دقیق‌تر حفظ می‌کند. |
+| Coordinator Node | nodeای که request را میان replicaها توزیع و responseها را جمع‌آوری می‌کند | در leaderless replication نقش واسط client را دارد، بدون تعیین order سراسری writeها. |
+| Dynamo-Style Database | database leaderless الهام‌گرفته از architecture مربوط به Dynamo | معمولاً eventual consistency، quorum و availability بالا را هدف می‌گیرد. |
+| Data Loss | از بین رفتن write یا value پذیرفته‌شده یا ذخیره‌شده | ممکن است در conflict resolution یا failure و restore نادرست رخ دهد. |
+| Vector Clock | metadata برای مقایسهٔ causal order و state replicaها | به تشخیص overwrite و concurrent write کمک می‌کند؛ با version vector مرتبط است. |
+| Happens-Before Relationship | رابطه‌ای که نشان می‌دهد یک operation از operation دیگر خبر داشته یا بر آن بنا شده است | برای تشخیص causal dependency و تمایز آن از concurrency به کار می‌رود. |
+| Tombstone | marker ثبت‌کنندهٔ حذف یک value در جریان merge نسخه‌ها | از بازگشت ناخواستهٔ value حذف‌شده هنگام merge جلوگیری می‌کند. |
+| Sibling | یکی از چند value concurrent که تا زمان conflict resolution نگهداری می‌شود | مانع از حذف silent داده در اثر overwrite کردن valueهای concurrent می‌شود. |
+| Sibling Values | valueهای concurrent و هنوز merge‌نشدهٔ یک key | application یا CRDT باید آن‌ها را merge یا resolve کند. |
+| Causal Context | representation مربوط به dependencyهای causal در version metadata | Riak از آن برای انتقال context لازم هنگام read و write استفاده می‌کند. |
+| Replica Staleness | میزان قدیمی بودن value یک replica نسبت به جدیدترین state | برای پایش freshness و اثر replication lag مهم است. |
+| Availability | توانایی system برای پاسخ‌گویی هنگام failure یا unavailable بودن بخشی از nodeها | در انتخاب quorum و مقایسهٔ consistency با availability نقش دارد. |
+| Disconnected Operation | ادامهٔ کار application هنگام قطع موقت network و انجام synchronization پس از برقراری connection | برای applicationهای distributed یا deviceمحور که نباید با interruption متوقف شوند مهم است. |
+
+## Chapter 6
+
+| English Term | Persian Explanation | Engineering Meaning |
+|---|---|---|
+| Partitioning | تقسیم عمدی یک dataset بزرگ به چند بخش مستقل برای توزیع data و query load میان nodeها | scalability را با توزیع storage و processing فراهم می‌کند و می‌تواند query throughput را افزایش دهد. |
+| Sharding | نام دیگری برای partitioning در برخی databaseها و data systemها | همان ایدهٔ شکستن dataset و توزیع بخش‌ها میان nodeهاست، اما نام آن در productهای مختلف متفاوت است. |
+| Partition | بخشی از dataset که معمولاً هر record را در خود نگه می‌دارد | مانند یک database کوچک عمل می‌کند و می‌تواند روی یک یا چند node، به‌صورت replicated، ذخیره شود. |
+| Shared-Nothing Cluster | clusterای که nodeهای آن storage و processing مستقل دارند | با توزیع data و query load میان nodeها، bottleneck منابع مشترک را کاهش می‌دهد. |
+| Query Throughput | تعداد queryهایی که system در واحد زمان پردازش می‌کند | با اجرای مستقل queryهای تک‌partitionی روی nodeهای مختلف می‌تواند scale شود. |
+| Query Load | حجم queryها و workload پردازشی واردشده به database یا partitionها | یکی از محورهایی است که partitioning باید آن را به‌صورت متوازن میان nodeها توزیع کند. |
+| Partitioned Database | databaseای که dataset آن میان چند partition و معمولاً چند node توزیع شده است | برای datasetهای بزرگ یا query throughput بالا به‌کار می‌رود و معمولاً با replication ترکیب می‌شود. |
+| Key-Value Data Model | data model ساده‌ای که recordها را با یک key، معمولاً primary key، پیدا می‌کند | امکان تعیین partition از روی key و route کردن مستقیم request را فراهم می‌کند. |
+| Key Range | بازه‌ای پیوسته از keyها که به یک partition اختصاص داده می‌شود | برای partitioning مرتب و پشتیبانی از range query استفاده می‌شود. |
+| Range Partitioning | partition کردن data بر اساس rangeهای پیوستهٔ key | range scan را ساده می‌کند، اما access patternهای زمانی می‌توانند hot spot بسازند. |
+| Hashing | تبدیل key به مقدار hash برای تعیین partition | data را معمولاً یکنواخت‌تر توزیع می‌کند، اما sort order و range query را تضعیف می‌کند. |
+| Hash Function | functionی که key را به مقدار hash تبدیل می‌کند | مبنای تعیین partition در hash partitioning است و باید برای همهٔ processها رفتار سازگار داشته باشد. |
+| Hash Partitioning | partition کردن data بر اساس range مقدار hash key، نه range خود key | skew و hot spot ناشی از ترتیب keyها را کاهش می‌دهد، اما range query را دشوار می‌کند. |
+| Skew | توزیع نابرابر data یا query load میان partitionها | باعث می‌شود بعضی nodeها overloaded و بعضی دیگر idle شوند. |
+| Hot Spot | partition یا keyای که به‌دلیل load نامتناسباً زیاد به bottleneck تبدیل می‌شود | می‌تواند scalability کل cluster را حتی با وجود nodeهای idle محدود کند. |
+| Load Distribution | پخش کردن data و workload میان nodeها و partitionها | برای استفادهٔ متوازن از storage، CPU و query capacity ضروری است. |
+| Consistent Hashing | روش hashمحور برای انتخاب partition boundaryها و توزیع load | برای databaseها همیشه مناسب نیست و نباید با replica consistency یا ACID consistency اشتباه شود. |
+| Compound Primary Key | primary keyای متشکل از چند column | می‌تواند یک بخش را برای partitioning و بخش‌های دیگر را برای sort و range scan به‌کار بگیرد. |
+| Concatenated Index | indexای که از چند بخش key تشکیل می‌شود | دسترسی مرتب به recordهای مرتبط و مدل‌سازی one-to-many relationship را ممکن می‌کند. |
+| Range Scan | خواندن کارآمد تمام recordهایی که key آن‌ها در یک range مشخص قرار دارد | برای queryهای زمانی و دسترسی به recordهای مرتب‌شده مهم است. |
+| Hot Key | keyای که حجم بسیار زیادی از read یا write را دریافت می‌کند | حتی hash partitioning هم نمی‌تواند requestهای یک key واحد را میان partitionهای متعدد پخش کند. |
+| Local Index | secondary indexای که هر partition به‌صورت مستقل برای documentهای خودش نگه می‌دارد | write ساده‌تری دارد، اما read ممکن است به scatter/gather روی همهٔ partitionها نیاز داشته باشد. |
+| Global Index | indexای که data تمام partitionها را پوشش می‌دهد و خودش نیز معمولاً partition شده است | read را مستقیم‌تر می‌کند، اما write ممکن است چند partition از index را درگیر کند. |
+| Document Partitioning | partition کردن secondary indexها بر اساس documentای که index entry به آن تعلق دارد | local index را ساده می‌کند، اما cross-partition query و scatter/gather ایجاد می‌کند. |
+| Term Partitioning | partition کردن global index بر اساس term یا value مورد جست‌وجو | request مربوط به یک term را به partition مشخصی route می‌کند و read را efficientتر می‌سازد. |
+| Index Entry | entryای در index که یک value یا term را به document IDها یا recordهای matching مرتبط می‌کند | نتیجهٔ search و ارتباط index با data اصلی را مشخص می‌کند. |
+| Query Routing | تعیین partition یا node مناسب برای ارسال یک read یا write request | client یا database را قادر می‌کند request را مستقیماً به محل data یا index بفرستد. |
+| Scatter/Gather | ارسال یک query به تمام partitionها و combine کردن resultهای برگشتی | queryهای secondary index را ممکن می‌کند، اما read cost و tail latency را افزایش می‌دهد. |
+| Cross-Partition Query | queryای که برای پاسخ دادن به data چند partition نیاز دارد | معمولاً به parallel request، merge result و مدیریت latency نیاز دارد. |
+| Inverted Index | indexای که term یا word را به documentهایی که آن را شامل می‌شوند map می‌کند | مبنای full-text search و نمونه‌ای طبیعی از term-partitioned index است. |
+| Distributed Transaction | transactionای که operationهای آن روی چند partition یا node اجرا می‌شود | برای update اتمیک چند partition لازم است، اما coordination و failure handling پیچیده‌ای دارد. |
+| Asynchronous Index Update | update شدن index با فاصله‌ای پس از write اصلی | ممکن است باعث شود search موقتاً index stale را ببیند، اما write path را ساده‌تر می‌کند. |
+| Rebalancing | جابه‌جا کردن load، data و requestها میان nodeها برای توزیع منصفانه‌تر partitionها | با اضافه یا حذف node، ظرفیت و تحمل failure cluster را حفظ می‌کند. |
+| Partition Assignment | mappingای که مشخص می‌کند هر partition روی کدام node قرار دارد | مبنای routing request و مدیریت ownership در cluster است. |
+| Partition Movement | انتقال یک partition کامل یا بخشی از آن از یک node به node دیگر | برای rebalancing لازم است، اما network و disk I/O مصرف می‌کند. |
+| Hash Mod N | تعیین node با محاسبهٔ `hash(key) mod N` | با تغییر تعداد nodeها باعث جابه‌جایی گستردهٔ keyها می‌شود و برای rebalancing مناسب نیست. |
+| Fixed Number of Partitions | ایجاد تعداد ثابتی partition و assign کردن چند partition به هر node | rebalancing را ساده می‌کند، اما انتخاب تعداد اولیه و مدیریت overhead دشوار است. |
+| Static Partitioning | partitioning با تعداد یا boundaryهای ثابت که در طول زمان خودکار تغییر نمی‌کنند | رفتار قابل‌پیش‌بینی‌تری دارد، اما با رشد متغیر dataset ممکن است اندازهٔ partition نامناسب شود. |
+| Dynamic Partitioning | split و merge کردن خودکار partitionها بر اساس اندازهٔ data یا thresholdهای مشخص | تعداد و اندازهٔ partition را با data volume تطبیق می‌دهد، اما management پیچیده‌تری دارد. |
+| Partition Splitting | تقسیم یک partition بزرگ به دو یا چند partition کوچک‌تر | از رشد بیش از حد partition و تمرکز load جلوگیری می‌کند. |
+| Partition Merging | ادغام partitionهای کوچک مجاور برای کاهش overhead | تعداد partitionها را هنگام کاهش data volume یا حذف data پایین می‌آورد. |
+| Pre-Splitting | ایجاد partitionهای اولیه روی database خالی پیش از آنکه data به اندازهٔ لازم برای split شدن برسد | از متمرکز شدن تمام writeها روی یک node در شروع کار جلوگیری می‌کند. |
+| Automatic Rebalancing | تصمیم‌گیری و اجرای automatic دربارهٔ جابه‌جایی partitionها بدون تأیید مستقیم administrator | operational work را کم می‌کند، اما می‌تواند unpredictable یا در ترکیب با failure detection خطرناک باشد. |
+| Manual Rebalancing | مدیریت و اعمال partition assignment با تصمیم یا commit صریح administrator | کندتر است، اما operational surprise و cascading reaction را کاهش می‌دهد. |
+| Operational Complexity | دشواری مدیریت، پایش و کنترل behavior یک system در محیط production | در انتخاب میان automation و کنترل دستی و در طراحی failure handling مهم است. |
+| Request Routing | تعیین node یا partition مناسب برای دریافت و پردازش یک request | برای دسترسی صحیح به data پس از partitioning و rebalancing ضروری است. |
+| Routing Tier | لایه‌ای که requestها را دریافت می‌کند، node مسئول را تعیین می‌کند و request را به آن forward می‌کند | routing را از client و database node جدا می‌کند و مانند partition-aware load balancer عمل می‌کند. |
+| Partition-Aware Load Balancer | load balancerای که از partition assignment آگاه است و request را به node مناسب می‌فرستد | از ارسال غیرضروری request و hopهای اضافی جلوگیری می‌کند. |
+| Cluster Metadata | information مربوط به state cluster، ownership partitionها و mapping میان partitionها و nodeها | برای route کردن request و هماهنگ ماندن participantهای cluster لازم است. |
+| Coordination Service | service مستقلی مانند `ZooKeeper` برای نگه‌داری metadata authoritative و اطلاع‌رسانی تغییرات cluster | nodeها و routing componentها را از تغییر ownership و membership مطلع می‌کند. |
+| Authoritative Mapping | mapping مرجع و قابل‌اعتماد میان partitionها و nodeهای owner آن‌ها | source of truth تصمیم routing در یک partitioned cluster است. |
+| Gossip Protocol | protocol توزیع‌شده‌ای که nodeها با exchange کردن state، تغییرات cluster را میان یکدیگر منتشر می‌کنند | بدون coordination service خارجی، cluster state را disseminate می‌کند. |
+| Parallel Query Execution | اجرای هم‌زمان بخش‌های یک query روی چند node یا partition | برای queryهای analytical و scanهای بزرگ، query performance را افزایش می‌دهد. |
+| Massively Parallel Processing (MPP) | معماری اجرای query که workload را میان تعداد زیادی node توزیع و parallelize می‌کند | در relational data warehouseها برای join، filtering، grouping و aggregation پیچیده استفاده می‌شود. |
+| Execution Stage | یکی از مرحله‌های برنامهٔ اجرای query که می‌تواند مستقل یا parallel با stageهای دیگر اجرا شود | query optimizer با شکستن query به stageها، اجرای distributed را برنامه‌ریزی می‌کند. |
+| Distributed Query | queryای که برای پردازش به چند node یا partition وابسته است | به routing، هماهنگی، merge result و مدیریت network latency نیاز دارد. |
+| Hybrid Partitioning | ترکیب چند روش partitioning در یک key، مانند استفاده از یک بخش compound key برای partition و بخش دیگر برای sort order | امکان جمع کردن مزیت توزیع load و دسترسی مرتب یا range query را فراهم می‌کند. |
+
+## Chapter 7
+
+| English Term | Persian Explanation | Engineering Meaning |
+|---|---|---|
+| ACID | مجموعه‌ای از guaranteeهای Atomicity، Consistency، Isolation و Durability برای transactionها | چارچوب رایج توصیف safety propertyهای transaction است، اما معنای دقیق آن میان databaseها متفاوت است. |
+| BASE | رویکردی مبهم‌تر از ACID، مبتنی بر Basically Available، Soft state و Eventual consistency | معمولاً برای systemهایی به‌کار می‌رود که guaranteeهای کامل ACID را ارائه نمی‌کنند. |
+| Atomicity | تضمین اینکه transaction یا به‌طور کامل commit شود یا تمام writeهای آن discard و abort شوند | application را از partial failure و retry ناامن writeهای نصفه‌نیمه محافظت می‌کند. |
+| ACID Consistency | حفظ invariantهای application-specific که state معتبر database را تعریف می‌کنند | به definition application از valid data وابسته است و فقط توسط database به‌تنهایی guarantee نمی‌شود. |
+| Isolation | جلوگیری از interference میان transactionهای concurrent و پنهان کردن stateهای میانی آن‌ها | از دیده شدن state نصفه‌نیمه و برخی race conditionها جلوگیری می‌کند، اما levelهای مختلفی دارد. |
+| Commit | نهایی کردن موفق transaction و اعلام پذیرفته شدن writeهای آن | نقطه‌ای است که پس از آن Durability و دیگر guaranteeهای transaction باید اعمال شوند. |
+| Abort | متوقف کردن transaction پیش از تکمیل و discard کردن writeهای آن | اجازه می‌دهد application پس از error transaction را با اطمینان retry کند. |
+| Atomic Commit | تصمیم هماهنگ برای اینکه چند participant همگی commit شوند یا همگی abort | برای حفظ all-or-nothing behavior در چند system یا participant استفاده می‌شود. |
+| Integrity Constraint | قاعده‌ای که valid بودن data را محدود می‌کند | نقض آن می‌تواند transaction را fail کند یا database را از state معتبر خارج کند. |
+| Referential Integrity | حفظ valid بودن referenceهایی مانند foreign key میان recordها یا tableها | از باقی ماندن referenceهای شکسته در relational و graph-like data model جلوگیری می‌کند. |
+| Uniqueness Constraint | constraintای که duplicate نبودن یک value یا key را تضمین می‌کند | یکی از invariantهایی است که database می‌تواند مستقیماً check کند. |
+| Invariant | شرطی که باید در تمام stateهای معتبر database برقرار بماند | application transactionها را طوری طراحی می‌کند که این شرط‌ها حفظ شوند. |
+| Concurrency | اجرای هم‌زمان operationها یا transactionهای متعدد | می‌تواند race condition، lost update و stateهای ناسازگار ایجاد کند. |
+| Serializability | guaranteeای که result transactionهای concurrent را معادل اجرای serial آن‌ها می‌کند | قوی‌ترین شکل رایج Isolation است، اما ممکن است هزینهٔ performance قابل‌توجهی داشته باشد. |
+| Crash Recovery | بازگرداندن database به state معتبر پس از crash با استفاده از log یا mechanismهای مشابه | از باقی ماندن writeهای ناقص یا data structureهای corrupt جلوگیری می‌کند. |
+| Single-Object Operation | operation اتمیک روی یک object مانند key-value pair یا document | برای updateهای ساده مفید است، اما جایگزین عمومی multi-object transaction نیست. |
+| Multi-Object Transaction | transactionای که read و write چند row، document یا record را در یک واحد هماهنگ می‌کند | consistency میان dataهای مرتبط، denormalized و indexهای متعدد را حفظ می‌کند. |
+| Compare-and-Set | operationای که فقط در صورت تغییر نکردن concurrent value، write را انجام می‌دهد | برای جلوگیری از lost update مفید است، اما به‌تنهایی transaction چندobjectی نیست. |
+| Atomic Increment | incrementای که read-modify-write را به یک operation اتمیک تبدیل می‌کند | race condition مربوط به update هم‌زمان یک counter را کاهش می‌دهد. |
+| Dirty Read | مشاهدهٔ writeای که transaction مربوط به آن هنوز commit نشده است | می‌تواند application را در معرض state نیمه‌کاره یا dataای قرار دهد که بعداً rollback می‌شود. |
+| Two-Phase Commit (2PC) | protocol هماهنگ‌کننده برای commit یا abort کردن چند system به‌صورت مشترک | atomic commit میان participantهای مختلف را ممکن می‌کند، اما coordination و failure handling پیچیده‌ای دارد. |
+| Exponential Backoff | افزایش تدریجی فاصلهٔ زمانی میان retryها | از تشدید overload و ایجاد feedback cycle هنگام failure جلوگیری می‌کند. |
+| Weak Isolation | isolation levelی که فقط در برابر بعضی concurrency anomalyها محافظت می‌کند | performance بهتری از serializable isolation می‌دهد، اما می‌تواند race conditionهای subtle باقی بگذارد. |
+| Isolation Level | مجموعهٔ guaranteeهای database دربارهٔ visibility و interference میان transactionهای concurrent | trade-off میان correctness، performance و concurrency را مشخص می‌کند. |
+| Read Committed | isolation levelی که dirty read و dirty write را منع می‌کند، اما الزاماً read skew یا write skew را نه | یکی از رایج‌ترین isolation levelها با هزینهٔ کمتر از serializability است. |
+| Dirty Write | overwrite کردن valueای که transaction مربوط به آن هنوز commit نشده است | می‌تواند updateهای چند object را با هم قاطی و state نادرست ایجاد کند. |
+| Snapshot Isolation | isolation levelی که هر transaction را روی snapshot consistent مربوط به شروع آن اجرا می‌کند | read skew را کاهش می‌دهد و اجازه می‌دهد readerها و writerها یکدیگر را block نکنند. |
+| Repeatable Read | نامی که بعضی databaseها برای snapshot isolation به‌کار می‌برند | معنای آن میان databaseها متفاوت است و الزاماً guarantee یکسانی ندارد. |
+| Multi-Version Concurrency Control (MVCC) | نگه‌داری چند version از objectها برای ارائهٔ snapshot consistent به transactionها | readهای concurrent را بدون lock کردن readerها مدیریت می‌کند. |
+| Read Skew | مشاهدهٔ valueهای مرتبط در pointهای زمانی متفاوت که state موقتاً inconsistent ایجاد می‌کند | نمونه‌ای از anomaly مجاز در read committed isolation است. |
+| Nonrepeatable Read | read دوبارهٔ object در یک transaction و مشاهدهٔ value متفاوت نسبت به read قبلی | نشان می‌دهد transaction snapshot یکسانی برای تمام readها نداشته است. |
+| Lost Update | از دست رفتن modification یک transaction چون write concurrent بعدی آن را overwrite کرده است | با atomic write، lock، detection یا conflict resolution قابل‌پیشگیری است. |
+| Write Skew | anomalyای که transactionهای concurrent پس از read کردن data مشترک، objectهای متفاوتی را update می‌کنند | می‌تواند invariant چندobjectی را نقض کند و معمولاً به serializable isolation یا lock نیاز دارد. |
+| Phantom | تغییر result یک search query در transaction دیگر به‌دلیل تغییر rowهای matching | در read-write transactionها می‌تواند به write skew منجر شود. |
+| Concurrency Control | مجموعهٔ mechanismهایی برای مدیریت interaction میان operationهای concurrent | از race condition و anomalyهای write و read جلوگیری یا آن‌ها را محدود می‌کند. |
+| Row-Level Lock | lock روی یک row یا object که دسترسی هم‌زمان transactionهای دیگر را محدود می‌کند | برای جلوگیری از dirty write و explicit locking استفاده می‌شود. |
+| Cursor Stability | techniqueای که هنگام read-modify-write object را با lock محافظت می‌کند | از read شدن یا تغییر concurrent object تا پایان update جلوگیری می‌کند. |
+| Commutative Operation | operationای که order اجرای آن روی replicaهای مختلف result نهایی را تغییر نمی‌دهد | برای merge امن updateها در replicated databaseها مفید است. |
+| Read Uncommitted | isolation level ضعیفی که dirty read را اجازه می‌دهد، اما dirty write را منع می‌کند | visibility بیشتری می‌دهد، اما application را در معرض data commit‌نشده قرار می‌دهد. |
+| Materializing Conflicts | تبدیل phantom به lock conflict روی rowهای مصنوعی و از پیش ایجادشده | workaroundای پیچیده برای enforce کردن constraintهای چندobjectی است. |
