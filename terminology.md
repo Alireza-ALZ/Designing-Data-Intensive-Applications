@@ -546,3 +546,86 @@
 | Quality of Service (QoS) | اولویت‌بندی و scheduling traffic برای ارائهٔ guarantee یا رفتار بهتر به بعضی packetها | می‌تواند روی packet network اولویت و delay آماری کنترل‌شده ایجاد کند. |
 | Admission Control | محدود کردن ورود traffic یا rate فرستنده‌ها برای جلوگیری از overload شدن system | با رد یا rate-limit کردن traffic جدید، capacity قابل‌پیش‌بینی‌تری حفظ می‌کند. |
 | Noisy Neighbor | tenant یا workload دیگری در یک محیط shared که با مصرف زیاد resource، performance و latency دیگران را ناپایدار می‌کند | در public cloud و multi-tenant datacenter باعث variability غیرقابل‌پیش‌بینی می‌شود. |
+| Clock | منبع سخت‌افزاری یا نرم‌افزاری برای خواندن یا اندازه‌گیری زمان در یک machine | clockهای مستقل ممکن است اختلاف داشته باشند و برای ترتیب‌دهی eventهای distributed قابل‌اعتماد نباشند. |
+| Monotonic Clock | clockی که فقط رو به جلو حرکت می‌کند و برای اندازه‌گیری duration مناسب است | برای timeout و elapsed time استفاده می‌شود، بدون اینکه نیازمند synchronization میان nodeها باشد. |
+| Time-of-Day Clock | clockی که تاریخ و ساعت فعلی را طبق یک تقویم گزارش می‌کند | برای timestamp تقویمی مناسب است، اما ممکن است با اصلاح time به عقب یا جلو بپرد. |
+| Wall-Clock Time | زمان تقویمی قابل‌مشاهده برای انسان که time-of-day clock ارائه می‌دهد | برای ثبت زمان رخداد مناسب است، اما الزاماً ترتیب علّی eventهای distributed را نشان نمی‌دهد. |
+| Clock Drift | جلو یا عقب افتادن تدریجی clock محلی نسبت به time مرجع | دقت time را میان دو synchronization کاهش می‌دهد و با temperature و کیفیت oscillator تغییر می‌کند. |
+| Clock Skew | اختلاف time گزارش‌شده میان clockهای دو machine | می‌تواند timestampها را از ترتیب واقعی رخدادها جدا کند و در LWW باعث data loss شود. |
+| Clock Synchronization | تنظیم clock machineها با منبع time مشترک برای کاهش اختلاف آن‌ها | برای time-of-day timestampها و برخی semantics توزیع‌شده لازم است، اما دقت نامحدود را تضمین نمی‌کند. |
+| Accuracy | نزدیکی clock reading به time واقعی یا مرجع | نشان می‌دهد اندازه‌گیری چقدر به مقدار درست نزدیک است؛ resolution بالا به‌تنهایی accuracy را تضمین نمی‌کند. |
+| Precision | ریزبودن resolution اندازه‌گیری یا تکرارپذیری آن | تعداد رقم‌های دقیق‌تر لزوماً به معنای نزدیک‌تر بودن clock reading به time واقعی نیست. |
+| Network Time Protocol (NTP) | protocolی برای تنظیم و synchronize کردن clock کامپیوترها با time serverها | رایج است، اما دقت آن به network delay، drift و صحت time serverها وابسته است. |
+| Precision Time Protocol (PTP) | protocolی برای clock synchronization دقیق در محیط‌های کنترل‌شده | با سخت‌افزار و deployment مناسب می‌تواند دقت بالاتری از NTP فراهم کند. |
+| Timestamp | مقدار time الصاق‌شده به event یا record | برای ثبت زمان مفید است، اما clock skew ممکن است آن را برای event ordering نامعتبر کند. |
+| Logical Clock | counter یا mechanismی برای تعیین ترتیب نسبی eventها بدون اندازه‌گیری زمان تقویمی | برای حفظ یا بررسی causal ordering از physical clock امن‌تر است. |
+| Event Ordering | تعیین ترتیب رخداد eventها در یک یا چند node | timestamp فیزیکی به‌تنهایی ترتیب درست را تضمین نمی‌کند؛ causality-aware logical clock می‌تواند کمک کند. |
+| Confidence Interval | بازه‌ای که مقدار واقعی، با سطح اطمینان مشخص، درون آن قرار دارد | clock reading را به‌صورت rangeای از زمان‌های ممکن نمایش می‌دهد، نه یک نقطهٔ دقیق. |
+| Clock Uncertainty | میزان خطای ممکن در clock reading که معمولاً به‌صورت bound یا confidence interval بیان می‌شود | برای تصمیم‌هایی که به ترتیب زمانی یا timestamp دقیق وابسته‌اند، باید در نظر گرفته شود. |
+| TrueTime API | API گوگل در Spanner که time جاری را همراه با earliest و latest زمان ممکن گزارش می‌کند | uncertainty clock را در اختیار transaction protocol می‌گذارد تا ordering و snapshot semantics را پشتیبانی کند. |
+| Lease | مجوزی زمان‌دار که تا پیش از expiry، حق انجام نقش یا دسترسی مشخصی را به یک node می‌دهد | برای انتخاب leader یا مالک موقت resource به‌کار می‌رود و به مدیریت دقیق expiry و pauseها نیاز دارد. |
+| Process Pause | توقف موقت اجرای process یا thread درحالی‌که باقی system به کار ادامه می‌دهد | ممکن است باعث شود node زنده timeout شود یا پس از از دست دادن lease عملیاتی ناامن انجام دهد. |
+| Garbage Collection (GC) | reclaim کردن memory objectهایی که دیگر استفاده نمی‌شوند | بعضی GCها threadهای application را pause می‌کنند و tail latency یا correctness پروتکل‌های زمان‌دار را تحت تأثیر قرار می‌دهند. |
+| Stop-the-World GC Pause | GC pauseای که طی آن تمام threadهای application متوقف می‌شوند | می‌تواند از timeout یا lease فراتر رود و node را در چشم سایر nodeها شبیه failure نشان دهد. |
+| Hard Real-Time System | systemی که باید در تمام شرایط deadlineهای مشخص را رعایت کند | به پشتیبانی و guarantee زمانی در سراسر software stack نیاز دارد و هزینهٔ توسعهٔ بالایی دارد. |
+| Distributed Knowledge | دانشی که هر node فقط از messageهای دریافتی و state محلی خود به دست می‌آورد | هیچ nodeای به‌تنهایی دید قطعی و کاملی از state کل system ندارد. |
+| Majority Quorum | quorumی شامل بیش از نیمی از nodeها که برای تصمیم مشترک رأی می‌دهند | از وجود دو اکثریت متعارض جلوگیری می‌کند و با چند node ازکارافتاده هم امکان پیشرفت می‌دهد. |
+| Supermajority | آستانهٔ رأیی بزرگ‌تر از دوسوم nodeها | برخی Byzantine fault-tolerant algorithmها برای ادامهٔ امن به چنین سهمی از nodeهای درست‌کار نیاز دارند. |
+| Byzantine Fault | رفتاری که در آن node ممکن است messageهای دلخواه، نادرست یا فریب‌کارانه بفرستد و از protocol پیروی نکند | برخلاف crash یا عدم پاسخ، سایر nodeها باید احتمال رفتار مخرب یا arbitrary را هم در نظر بگیرند. |
+| Byzantine Fault Tolerance (BFT) | توانایی system برای ادامهٔ عملکرد درست با وجود nodeهای خرابکار یا faultهای arbitrary | معمولاً به protocolهای پیچیده و supermajority از nodeهای درست‌کار نیاز دارد. |
+| Malicious Node | nodeای که عمداً برای فریب یا مختل کردن رفتار مورد انتظار system اقدام می‌کند | ممکن است message جعلی بسازد، protocol را نقض کند یا از آسیب‌پذیری‌ها سوءاستفاده کند. |
+| Unreliable Node | nodeای که ممکن است کند شود، پاسخ ندهد یا state قدیمی داشته باشد، اما طبق فرض معمول عمداً دروغ نمی‌گوید | failureهای عادی را از رفتار Byzantine و خرابکارانه متمایز می‌کند. |
+| System Model | abstraction رسمی از timing و faultهایی که algorithm مجاز است برای طراحی و اثبات correctness خود فرض کند | محدودهٔ شرایطی را مشخص می‌کند که guarantee الگوریتم در آن‌ها برقرار است. |
+| Timing Assumptions | فرض‌هایی دربارهٔ upper bound تأخیر network، process pause و clock error | تعیین می‌کند algorithm برای تشخیص failure و تضمین liveness به چه رفتار زمانی‌ای وابسته است. |
+| Synchronous Model | مدل زمانی با bound مشخص برای network delay، process pause و clock error | رفتار زمانی قابل‌پیش‌بینی فرض می‌کند که برای بیشتر systemهای عملی واقع‌بینانه نیست. |
+| Partially Synchronous Model | مدلی که system معمولاً boundهای زمانی را رعایت می‌کند، اما گاهی از آن‌ها فراتر می‌رود | مدل کاربردی‌تری از network و processهایی است که عمدتاً پایدارند ولی گاهی تأخیر نامحدود دارند. |
+| Asynchronous Model | مدلی که هیچ فرضی دربارهٔ timing ندارد و algorithm در آن نمی‌تواند به clock یا timeout تکیه کند | برای طراحی algorithmهای مقاوم بسیار محدودکننده است. |
+| Crash-Stop Fault | failureای که در آن node ناگهان متوقف می‌شود و دیگر هرگز برنمی‌گردد | ساده‌ترین مدل failure node است و recovery پس از crash را در نظر نمی‌گیرد. |
+| Crash-Recovery Fault | failureای که node پس از crash ممکن است دوباره فعال شود؛ stable storage باقی می‌ماند اما state در memory از دست می‌رود | رفتار رایج serverها و processهایی را مدل می‌کند که restart می‌شوند. |
+| Arbitrary Fault | هر رفتار دلخواه node، از جمله ارسال message نادرست یا تلاش برای فریب nodeهای دیگر | مدل گسترده‌ای از failure است که Byzantine fault را نیز در بر می‌گیرد. |
+| Fencing Token | عدد monotonic که با هر صدور lock یا lease افزایش می‌یابد و resource با بررسی آن writeهای stale را رد می‌کند | جلوی write کردن clientای را می‌گیرد که پس از pause یا انقضای lease هنوز خود را مالک resource می‌داند. |
+| Safety Property | شرطی که باید همیشه برقرار بماند و نقض آن در نقطه‌ای مشخص رخ می‌دهد | پس از نقض، آسیب انجام‌شده قابل‌برگشت نیست؛ مانند یکتا بودن fencing tokenها. |
+| Liveness Property | شرطی دربارهٔ پیشرفت system که ممکن است اکنون برقرار نباشد، اما انتظار می‌رود تحت فرض‌های مشخص سرانجام برقرار شود | به شرط‌هایی مانند زنده ماندن quorum یا بازیابی network وابسته می‌شود. |
+| Stable Storage | storage غیر فراری که انتظار می‌رود data آن پس از crash باقی بماند | الگوریتم‌های crash-recovery برای بازیابی state به آن تکیه می‌کنند. |
+| Truth and Uncertainty | محدودیت دانسته‌های هر node دربارهٔ وضعیت system، چون مشاهدهٔ remote state به messageهای نامطمئن وابسته است | یادآوری می‌کند که نبود response به‌تنهایی وضعیت node مقابل را اثبات نمی‌کند. |
+| Byzantine Generals Problem | صورت‌بندی consensus در محیطی که برخی participantها ممکن است messageهای جعلی یا فریب‌کارانه بفرستند | چارچوبی برای بررسی توافق در حضور participantهای غیرقابل‌اعتماد است. |
+| Asymmetric Fault | faultی که ارتباط یک node را فقط در یک جهت مختل می‌کند؛ node ممکن است message بگیرد اما responseهایش به دیگران نرسد | نشان می‌دهد node سالم هم ممکن است از دید اکثریت unreachable به نظر برسد. |
+| Degraded Node | nodeای که کاملاً از کار نیفتاده، اما performance آن به‌شدت افت کرده است | ممکن است از node کاملاً failشده دشوارتر مدیریت شود، چون همچنان بخشی از requestها را پاسخ می‌دهد. |
+
+## Chapter 9
+
+| English Term | Persian Explanation | Engineering Meaning |
+|---|---|---|
+| Consistency Guarantee | قاعده‌ای که مشخص می‌کند clientها پس از read و write چه state یا ترتیبی را می‌توانند مشاهده کنند | برای مقایسهٔ رفتار قابل‌مشاهدهٔ data systemها و میزان هماهنگی replicaها به‌کار می‌رود. |
+| Consistency Model | مجموعه‌ای از semantics و guaranteeها که رفتار read و write را در system توصیف می‌کند | قرارداد قابل‌مشاهده‌ای است که application هنگام طراحی با آن تعامل می‌کند. |
+| Convergence | رسیدن replicaها به state یا value یکسان پس از توقف تغییرات و رفع faultها | نتیجهٔ مورد انتظار در eventual consistency است، اما زمان رسیدن به آن معمولاً تضمین نمی‌شود. |
+| Transaction Isolation | guaranteeهایی که کنترل می‌کنند transactionهای هم‌زمان چگونه بر read و write یکدیگر اثر بگذارند | race conditionهای transactionهای concurrent را هدف می‌گیرد و از هماهنگی replicaها در distributed consistency متمایز است. |
+| Linearizability | guaranteeای که هر operation را چنان جلوه می‌دهد که گویی به‌صورت اتمیک روی یک copy واحد از data اجرا شده و ترتیب real-time حفظ شده است | برای ساخت lock، اعمال uniqueness constraint و ارائهٔ readهای حتماً به‌روز به‌کار می‌رود؛ معمولاً به coordination میان replicaها نیاز دارد. |
+| Linearizable System | systemی که رفتار read و write آن با یک ترتیب اتمیک سازگار با زمان واقعی operationها توضیح‌پذیر است | مانع از آن می‌شود که پس از مشاهدهٔ value جدید، client دیگری value قدیمی‌تری بخواند. |
+| Real-Time Ordering | ترتیب عملیات بر اساس قید زمانی؛ عملیاتی که پیش از آغاز عملیات دیگر تمام شده، باید پیش از آن در ترتیب قابل‌مشاهده قرار گیرد | بخش کلیدی semantics خطی‌پذیری برای operationهای غیرهم‌پوشان است. |
+| Strict Serializability | ترکیب serializability با رعایت ترتیب real-time میان transactionها | هم isolation ترتیبی و هم linearizability را فراهم می‌کند. |
+| Cross-Channel Race Condition | race condition میان دو communication channel مستقل که پیام‌ها یا داده‌ها را با ترتیب و تأخیر متفاوت منتقل می‌کنند | ممکن است consumer را پیش از قابل‌مشاهده‌شدن دادهٔ تازه، از وجود آن مطلع کند. |
+| CAP Theorem | trade-off میان linearizability و availability کامل هنگام network partition | نشان می‌دهد در زمان جداشدن replicaها نمی‌توان هم‌زمان هر دو guarantee را حفظ کرد؛ دامنه‌اش محدود به مدل‌ها و faultهای مشخص است. |
+| Memory Barrier | سازوکار سخت‌افزاری یا دستوری برای کنترل ترتیب مشاهدهٔ دسترسی‌های حافظه میان CPU coreها | برای برقرارکردن ترتیب موردنیاز در مدل‌های حافظهٔ چند‌هسته‌ای استفاده می‌شود. |
+| Ordering Guarantees | تضمین‌هایی دربارهٔ ترتیب قابل‌مشاهدهٔ operationها یا تحویل messageها در system | رفتار concurrent eventها، replication logها و message broadcast را برای clientها و replicaها مشخص می‌کند. |
+| Causal Consistency | consistency modelی که ترتیب علت‌ومعلولی eventها را روی تمام replicaها حفظ می‌کند، بدون آنکه برای eventهای concurrent ترتیب سراسری لازم بداند | از مشاهدهٔ effect پیش از cause جلوگیری می‌کند و می‌تواند از linearizability کارآمدتر باشد. |
+| Total Order | ترتیبی که در آن هر دو event قابل‌مقایسه‌اند و یکی پیش از دیگری قرار می‌گیرد | برای ساخت log مشترک، ترتیب‌دهی writeها و اعمال تصمیم‌های سراسری استفاده می‌شود. |
+| Partial Order | ترتیبی که فقط eventهای دارای رابطهٔ مشخص را مرتب می‌کند و eventهای concurrent می‌توانند در آن incomparable باشند | causality را بدون تحمیل ترتیب اضافی میان eventهای مستقل مدل می‌کند. |
+| Sequence Number | عدد یکتایی که به operation یا message اختصاص می‌یابد تا بتوان آن‌ها را مرتب کرد | اگر generator آن با causality هماهنگ باشد، ordering قابل‌استفاده‌ای برای replication و processing می‌سازد. |
+| Lamport Timestamp | زوج `(counter, node ID)` که total order سازگار با causality تولید می‌کند | روشی فشرده برای مرتب‌سازی eventهاست، اما به‌تنهایی concurrency را از causal dependency تشخیص نمی‌دهد. |
+| Total Order Broadcast | protocolی که messageها را reliable و با ترتیب یکسان به تمام nodeها تحویل می‌دهد | برای replication، log مشترک، ترتیب commandها و ساخت abstractionهای مبتنی بر consensus به‌کار می‌رود. |
+| State Machine Replication | روش replication که همهٔ replicaها commandهای یکسان را با ترتیب یکسان اجرا می‌کنند | با deterministic processing، state یکسانی را در replicaها حفظ می‌کند. |
+| Sequential Consistency | guaranteeای که operationها را در یک ترتیب کلی سازگار با ترتیب program هر client قرار می‌دهد، اما الزاماً ترتیب real-time را حفظ نمی‌کند | از linearizability ضعیف‌تر است و می‌تواند برای writeها از ترتیب log استفاده کند، درحالی‌که readها ممکن است stale باشند. |
+| Reliable Delivery | property broadcast که تحویل message به یک node را به تحویل آن به همهٔ nodeها تعمیم می‌دهد | یکی از دو شرط ایمنی total order broadcast است و با retry در برابر اختلال network حفظ می‌شود. |
+| Transaction Coordinator | componentی که participantهای distributed transaction را هماهنگ می‌کند، رأی‌های prepare را جمع می‌کند و تصمیم commit یا abort را ثبت و منتشر می‌سازد | failure یا ازدست‌رفتن log آن می‌تواند transactionهای in-doubt را معطل و lockها را محبوس کند. |
+| Participant | node یا data system شرکت‌کننده در distributed transaction که prepare می‌شود و سپس commit یا abort را اجرا می‌کند | برای atomic commit باید نتیجهٔ نهایی coordinator را رعایت کند و در 2PC پس از رأی مثبت دیگر حق abort یک‌طرفه ندارد. |
+| In-Doubt Transaction | transaction آماده‌شده‌ای که participant از commit یا abort شدنش خبر ندارد، معمولاً به‌علت failure coordinator یا network | می‌تواند lockها را نگه دارد و transactionهای دیگر را block کند تا coordinator recover شود یا administrator مداخله کند. |
+| Heuristic Decision | انتخاب یک‌طرفهٔ participant برای commit یا abort کردن transaction in-doubt، بدون تصمیم قطعی coordinator | راه اضطراری برای رفع بن‌بست است و ممکن است atomicity میان participantها را نقض کند. |
+| Blocking Atomic Commit | protocolی برای atomic commit که پس از failure coordinator می‌تواند participantها را تا recovery یا تصمیم دستی متوقف نگه دارد | 2PC نمونهٔ آن است؛ این blocking از محدودیت‌های مهم availability در distributed transactionهاست. |
+| Fault-Tolerant Consensus | توافق nodeها بر یک value با حفظ safety در برابر failure و تضمین progress در صورت دسترس‌بودن quorum کافی | برای انتخاب leader، atomic commit و ساخت replicated state machine استفاده می‌شود. |
+| Consensus Termination | liveness propertyای که تضمین می‌کند nodeهای crashنکرده سرانجام تصمیم consensus می‌گیرند | نشان می‌دهد protocol در کنار safety واقعاً پیشرفت می‌کند و در انتظار دائمی نمی‌ماند. |
+| Epoch Number | شمارهٔ افزایشی دورهٔ رهبری که در صورت تعارض، تصمیم leader دورهٔ جدیدتر را معتبر می‌کند | همراه quorum به nodeها کمک می‌کند leaderهای stale را شناسایی و split brain را مهار کنند. |
+| Membership Service | serviceای که مشخص می‌کند کدام nodeها عضو فعال cluster هستند | فهرست سازگار اعضا برای leader election، failure handling و تخصیص partition یا کار لازم است. |
+| Failure Detector | mechanismی که nodeهای مشکوک به failure را شناسایی می‌کند، اغلب با heartbeat و timeout | در شبکهٔ دارای delay نامحدود فقط suspicion می‌دهد؛ تشخیص اشتباه می‌تواند electionهای مکرر و افت performance ایجاد کند. |
+| Three-Phase Commit (3PC) | protocolی برای nonblocking atomic commit که مرحله‌ای بیشتر از 2PC دارد و به delayهای شبکه و زمان پاسخ bounded متکی است | در systemهای دارای delay یا process pause نامحدود، atomicity را تضمین نمی‌کند. |
+| Consensus-Equivalent Problem | مسئله‌ای در distributed system که می‌توان راه‌حل آن را به consensus یا مسئلهٔ هم‌ارز دیگری تبدیل کرد | تشخیص این هم‌ارزی کمک می‌کند مسائلی مانند atomic commit، total order broadcast و انتخاب leader را با primitiveهای consensus حل کنیم. |
