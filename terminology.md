@@ -710,3 +710,39 @@
 | Microbatching | تقسیم stream به batchهای کوچک و پردازش آن‌ها به‌صورت دوره‌ای | پیاده‌سازی semantics شبیه batch را ممکن می‌کند، با trade-off میان latency و سربار scheduling. |
 | AMQP/JMS-Style Message Broker | brokerی که پیام‌ها را جداگانه به consumer می‌دهد و پس از acknowledgment حذف می‌کند | برای task queue و پیام‌رسانی asynchronous مناسب است، اما replay پیام‌های پردازش‌شده را پشتیبانی نمی‌کند. |
 | Log-Based Message Broker | brokerی که پیام‌ها را در partitionهای پایدار نگه می‌دارد و consumerها با offset ترتیبی می‌خوانند | ordering درون partition، fan-out و replay را فراهم می‌کند؛ parallelism با تعداد partitionها محدود می‌شود. |
+
+## Chapter 12
+
+| English Term | Persian Explanation | Engineering Meaning |
+|---|---|---|
+| Data Integration | رساندن data به representation مناسب در همهٔ systemهای موردنیاز و هماهنگ‌کردن جریان میان آن‌ها | toolهای تخصصی را با dataflowهای قابل‌اعتماد ترکیب می‌کند تا چند access pattern از data پشتیبانی شوند. |
+| Derived Data | dataای که با transformation، aggregation یا ترکیب از source data تولید می‌شود | read viewهایی مانند search index، cache و analytics output را می‌توان از منبع اصلی دوباره ساخت و به‌روز کرد. |
+| Lambda Architecture | معماری‌ای که batch processing تاریخی و stream processing بلادرنگ را موازی اجرا و outputهایشان را ترکیب می‌کند | میان latency کم و اصلاح دقیق‌تر data تاریخی trade-off ایجاد می‌کند، اما منطق و عملیات دو pipeline را لازم دارد. |
+| Unbundled Database | معماری‌ای که قابلیت‌های database را میان storage و processing systemهای تخصصی تقسیم و آن‌ها را با dataflow هماهنگ می‌کند | ترکیب ابزارهای متنوع را برای پشتیبانی از access patternهای مختلف ممکن می‌کند؛ در عوض، همگام‌سازی و عملیات چند component را لازم دارد. |
+| Federated Database (Polystore) | databaseای با query interface یکپارچه روی چند storage engine یا system متفاوت | امکان query و ترکیب data پراکنده را می‌دهد، بدون آنکه همهٔ data به یک storage engine منتقل شود. |
+| Write Path | مسیر پردازشی‌ای که data هنگام ورود طی می‌کند تا state و derived datasetها به‌روز شوند | با پیش‌محاسبه در زمان ورود، بخشی از هزینه را از read path به write path منتقل می‌کند. |
+| Read Path | مسیری که هنگام درخواست data برای خواندن و ساخت response اجرا می‌شود | میزان کار زمان query را تعیین می‌کند و در کنار write path نقطهٔ trade-off میان هزینهٔ read و write است. |
+| Derived Dataset | datasetای که از source data با transformation، aggregation یا مدل‌سازی ساخته می‌شود | index، cache و predictive model نمونه‌هایی هستند که باید با منبعشان همگام بمانند یا دوباره ساخته شوند. |
+| Stream Operator | واحد پردازشی در stream processor که streamهای ورودی را به streamهای خروجی تبدیل می‌کند | امکان ترکیب computationهای stateful و dataflow را با حفظ ترتیب و پردازش قابل‌اعتماد فراهم می‌کند. |
+| Offline-First Application | applicationای که قابلیت‌های اصلی را با state و storage محلی، حتی بدون شبکه، ارائه می‌دهد | تجربهٔ کاربری را از دسترس‌پذیری اتصال جدا می‌کند و به synchronization پس‌زمینه با server نیاز دارد. |
+| End-to-End Event Stream | streamای از eventهای تغییر state که از مبدأ تا consumer نهایی، از جمله clientها، منتشر می‌شود | write path را تا user interface امتداد می‌دهد و امکان به‌روزرسانی کم‌تأخیر و پشتیبانی بهتر از offline را فراهم می‌کند. |
+| Data Provenance | اطلاعاتی دربارهٔ منشأ و مسیر تولید یا مصرف data | به ردیابی dependencyها و بازسازی داده‌ای که هنگام تصمیم‌گیری در اختیار user بوده کمک می‌کند. |
+| End-to-End Argument | اصل طراحی‌ای که می‌گوید برخی guaranteeها فقط با همکاری application در endpointهای مسیر به‌طور کامل قابل‌تحقق‌اند | بررسی duplicate، integrity و امنیت باید از مبدأ تا مقصد انجام شود؛ guarantee یک لایهٔ میانی به‌تنهایی کافی نیست. |
+| Operation ID | شناسهٔ یکتای request یا operation که در همهٔ مرحله‌های پردازش حفظ می‌شود | با ثبت ID و اعمال uniqueness constraint می‌توان retryهای تکراری را تشخیص داد و از اعمال دوبارهٔ effect جلوگیری کرد. |
+| Compensating Transaction | operation اصلاحی‌ای که اثر کسب‌وکاری operation قبلی را جبران می‌کند، نه لزوماً با rollback فنی | برای اصلاح اثرهای برگشت‌ناپذیر یا پذیرفتن موقت constraint violation به کار می‌رود. |
+| Timeliness | میزان به‌روز بودن stateای که user مشاهده می‌کند | تأخیر در انتشار updateها timeliness را تضعیف می‌کند، اما لزوماً باعث data loss یا corruption دائمی نمی‌شود. |
+| Integrity | کامل و درست ماندن data، بدون loss، corruption یا تناقض | برخلاف timeliness، نقض integrity معمولاً با گذشت زمان خودبه‌خود رفع نمی‌شود و به validation و repair نیاز دارد. |
+| Coordination-Avoiding Data System | معماری‌ای که تا حد ممکن از هماهنگی synchronous میان nodeها یا partitionها پرهیز می‌کند | با log و پردازش asynchronous می‌تواند availability و fault tolerance را بالا ببرد، درحالی‌که integrity را با مکانیزم‌های دیگر حفظ می‌کند. |
+| Auditing | بررسی دوره‌ای و مستقل برای کشف data corruption یا نقض invariantها | با validation سرتاسری، مقایسهٔ replicaها و آزمودن restore از backup، خرابی پنهان را پیش از ایجاد خسارت گسترده آشکار می‌کند. |
+| Merkle Tree | ساختار درختی که nodeهایش hash داده‌ها یا hash فرزندها را نگه می‌دارند | بررسی membership و مقایسهٔ بخش‌های dataset را با انتقال و محاسبهٔ محدود ممکن می‌کند. |
+| Deterministic Dataflow | جریان پردازشی‌ای که برای input و منطق یکسان، output یکسان تولید می‌کند | replay کردن event log برای audit، بازسازی derived state و تشخیص علت نتایج غیرمنتظره را ممکن می‌کند. |
+| Predictive Analytics | تحلیل data تاریخی و جاری برای برآورد رخدادها یا رفتارهای آینده | خروجی احتمالاتی آن می‌تواند تصمیم‌های مهم دربارهٔ افراد را تحت تأثیر قرار دهد و نیازمند ارزیابی bias، خطا و پیامدهای بازخوردی است. |
+| Algorithmic Bias | biasای که در data، ویژگی‌ها یا منطق model وجود دارد و در خروجی تصمیم‌گیری الگوریتمی بازتاب می‌یابد | می‌تواند تبعیض تاریخی را بازتولید یا تقویت کند؛ بنابراین نیاز به سنجش fairness و پاسخ‌گویی دارد. |
+| Feedback Loop | چرخه‌ای که خروجی یک system رفتار یا وضعیت ورودی بعدی را تغییر می‌دهد و دوباره بر خروجی اثر می‌گذارد | در predictive systemها ممکن است پیش‌بینی اولیه را خودتقویت و نابرابری یا خطا را تشدید کند. |
+| Surveillance | گردآوری و تحلیل مستمر رفتار یا ویژگی‌های افراد، معمولاً بدون کنترل آگاهانه و معنادار آن‌ها | امکان profileسازی و تصمیم‌گیری دربارهٔ افراد را فراهم می‌کند و ریسک‌های privacy و سوءاستفاده را افزایش می‌دهد. |
+| Informed Consent | رضایتی که پس از آگاهی روشن از نوع data، هدف و شیوهٔ استفاده از آن داده می‌شود | بدون فهم قابل‌دسترس و امکان انتخاب واقعی، پذیرش شرایط به‌تنهایی رضایت معنادار محسوب نمی‌شود. |
+| Data Broker | کسب‌وکاری که data شخصی را از منابع مختلف تهیه، ترکیب، تحلیل و بازفروش می‌کند | dataهای پراکنده را به profileهای قابل‌استفاده برای marketing یا تصمیم‌گیری تبدیل می‌کند. |
+| Data Exhaust | data رفتاری‌ای که به‌عنوان پیامد جانبی استفاده از یک service تولید می‌شود | ممکن است به‌جای پسماند بی‌ارزش، دارایی اقتصادی مهمی برای تبلیغات و profileسازی باشد. |
+| Data Minimization | محدود کردن گردآوری و پردازش data به حداقل لازم برای هدفی مشخص | دامنهٔ آسیب احتمالی breach یا استفادهٔ ثانویه از data را کاهش می‌دهد. |
+| Data Retention | مدت و قواعد نگهداری data پیش از حذف یا ناشناس‌سازی آن | نگهداری نامحدود ریسک privacy و افشا را بالا می‌برد؛ زمان‌بندی حذف باید با نیاز واقعی هماهنگ باشد. |
+| Systems Thinking | تحلیل رفتار یک system با درنظرگرفتن تعامل componentهای فنی و انسانی و پیامدهای کلان آن | به کشف پیامدهای ناخواسته، حلقه‌های بازخورد و اثر طراحی بر گروه‌های مختلف کمک می‌کند. |
