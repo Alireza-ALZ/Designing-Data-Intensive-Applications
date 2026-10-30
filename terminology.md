@@ -124,7 +124,7 @@
 | Access Path | مسیر مشخص برای رسیدن به record | در مدل‌های قدیمی با دنبال کردن linkها از root به داده می‌رسیدند. |
 | Query Optimizer | جزء database برای انتخاب روش اجرای query | ترتیب اجرای operationها و indexهای مناسب را خودکار تعیین می‌کند. |
 | Document Reference | identifierای برای اشاره به document مرتبط | در document model نقش مشابه foreign key را دارد و هنگام read resolve می‌شود. |
-| Data Locality | نزدیک بودن داده‌های مرتبط در یک محل ذخیره‌سازی | می‌تواند تعداد queryها و joinهای لازم برای خواندن یک entity را کاهش دهد. |
+| Data Locality | نزدیک‌بودن computation به محل ذخیره‌شدن data | با کاهش جابه‌جایی data روی network، هزینه و latency پردازش distributed را پایین می‌آورد. |
 | Schema Flexibility | آزادی در تغییر structure documentها بدون migration هم‌زمان در کل داده‌ها | برای داده‌های متغیر مفید است، اما بخشی از اعتبارسنجی schema را به application منتقل می‌کند. |
 | Schema-on-Read | تفسیر structure داده هنگام read، بدون enforce شدن کامل توسط database | تغییر format داده را ساده‌تر می‌کند، اما client باید با versionهای مختلف داده سازگار باشد. |
 | Schema-on-Write | enforce کردن schema هنگام write و الزام سازگاری دادهٔ ذخیره‌شده با آن | ساختار داده را صریح و قابل‌کنترل می‌کند، اما تغییر schema ممکن است به migration نیاز داشته باشد. |
@@ -629,3 +629,42 @@
 | Failure Detector | mechanismی که nodeهای مشکوک به failure را شناسایی می‌کند، اغلب با heartbeat و timeout | در شبکهٔ دارای delay نامحدود فقط suspicion می‌دهد؛ تشخیص اشتباه می‌تواند electionهای مکرر و افت performance ایجاد کند. |
 | Three-Phase Commit (3PC) | protocolی برای nonblocking atomic commit که مرحله‌ای بیشتر از 2PC دارد و به delayهای شبکه و زمان پاسخ bounded متکی است | در systemهای دارای delay یا process pause نامحدود، atomicity را تضمین نمی‌کند. |
 | Consensus-Equivalent Problem | مسئله‌ای در distributed system که می‌توان راه‌حل آن را به consensus یا مسئلهٔ هم‌ارز دیگری تبدیل کرد | تشخیص این هم‌ارزی کمک می‌کند مسائلی مانند atomic commit، total order broadcast و انتخاب leader را با primitiveهای consensus حل کنیم. |
+
+## Chapter 10
+
+| English Term | Persian Explanation | Engineering Meaning |
+|---|---|---|
+| Unix Pipeline | زنجیره‌ای از commandها که خروجی هر مرحله را به ورودی مرحلهٔ بعد وصل می‌کند | امکان ساخت data processing jobهای ترکیبی از ابزارهای کوچک و مستقل را می‌دهد. |
+| Unix Philosophy | اصول طراحی Unix مانند انجام یک کار مشخص توسط هر برنامه و قابلیت ترکیب برنامه‌ها از طریق interface مشترک | تغییر، آزمایش و بازاستفاده از ابزارها را آسان می‌کند و در طراحی data systemهای بزرگ نیز کاربرد دارد. |
+| Working Set | مجموعه یا حجم dataای که یک job برای اجرا به آن دسترسی فعال، معمولاً تصادفی، دارد | تعیین می‌کند aggregation در memory مناسب است یا باید از disk و external sort استفاده کرد. |
+| External Sorting | مرتب‌سازی dataset بزرگ‌تر از memory با sort کردن chunkها روی disk و merge کردن segmentها | با sequential I/O، sort داده‌های بزرگ را بدون نگه‌داشتن کل آن در memory ممکن می‌کند. |
+| Sequential I/O | خواندن یا نوشتن data به‌شکل پیوسته و مرتب، به‌جای دسترسی تصادفی | برای disk کارآمدتر است و در merge کردن فایل‌های مرتب‌شده به‌کار می‌رود. |
+| File Descriptor | شناسه‌ای که process برای دسترسی به file یا منبع I/O بازشده استفاده می‌کند | interface یکنواخت Unix برای file، pipe، socket و برخی deviceهاست. |
+| Standard Input (stdin) | stream ورودی پیش‌فرض یک process | shell می‌تواند آن را از keyboard، file یا خروجی pipe دیگری تأمین کند. |
+| Standard Output (stdout) | stream خروجی پیش‌فرض یک process | خروجی برنامه را می‌توان به file redirect یا به ورودی process دیگری متصل کرد. |
+| HDFS | distributed filesystem در Hadoop که fileها را میان machineهای cluster ذخیره و replicate می‌کند | با استفاده از commodity hardware، storage بزرگ shared-nothing و اجرای computation نزدیک data را ممکن می‌کند. |
+| NameNode | server مرکزی HDFS که محل file blockها را در cluster track می‌کند | metadata مربوط به فایل‌ها و machineهای میزبان blockها را مدیریت می‌کند. |
+| Mapper | function یا taskای که هر input record را مستقل پردازش و صفر یا چند key-value pair می‌سازد | مرحلهٔ map را تشکیل می‌دهد و استخراج key برای partitioning و grouping را انجام می‌دهد. |
+| Reducer | functionی که valueهای متعلق به یک key را پردازش و output record تولید می‌کند | پس از shuffle، aggregation، join یا منطق نهایی هر گروه را اجرا می‌کند. |
+| Shuffle | partition، sort و انتقال خروجی mapperها به reducerها بر اساس key | dataهای مرتبط را به reducer درست می‌رساند، اما می‌تواند network و disk I/O پرهزینه‌ای داشته باشد. |
+| Reduce-Side Join | الگوریتم join که mapperها input را بر اساس join key partition و sort می‌کنند و reducerها آن را merge می‌کنند | برای inputهای با layout نامعلوم مناسب است، اما shuffle و sort هزینه‌بر دارد. |
+| Sort-Merge Join | join دو stream مرتب‌شده با پیمایش هم‌زمان آن‌ها بر اساس key | recordهای matchشده را با memory کم و access ترتیبی ترکیب می‌کند. |
+| Map-Side Join | join در mapper، بدون reduce stage یا shuffle، با تکیه بر فرض‌هایی دربارهٔ اندازه یا layout input | می‌تواند shuffle را حذف و join را سریع کند، اما inputها باید متناسب و گاهی هم‌partition یا هم‌مرتب باشند. |
+| Broadcast Hash Join | map-side join که input کوچک را در hash table هر mapper بارگذاری می‌کند تا با input بزرگ join شود | مناسب وقتی input کوچک در memory هر mapper جا می‌شود؛ خواندن و کپی آن برای همهٔ partitionها هزینه دارد. |
+| Sessionization | گردآوری eventهای یک user یا session برای بازسازی توالی فعالیت‌ها | برای تحلیل رفتار، A/B testing و ارزیابی کارایی marketing به‌کار می‌رود. |
+| Human Fault Tolerance | امکان بازگشت از bug یا اشتباه با نگهداری input و امکان تولید مجدد output | immutable input و خروجی‌های versionشده را به سازوکاری برای rollback و recovery عملیاتی تبدیل می‌کند. |
+| MPP Database | database تحلیلی با اجرای موازی queryها روی cluster و اجزای یکپارچهٔ storage و execution | برای analytic SQL با performance بالا بهینه است، اما از مدل‌های processing دلخواه انعطاف کمتری دارد. |
+| Preemption | خاتمه‌دادن task کم‌اولویت برای آزادکردن منابع موردنیاز task پر‌اولویت | utilization cluster را بهتر می‌کند، اما jobهای batch باید بتوانند taskهای متوقف‌شده را retry کنند. |
+| Materialization | محاسبه و ذخیرهٔ پیشاپیش نتیجهٔ یک operation، به‌جای محاسبهٔ آن هنگام درخواست | intermediate یا final state را برای استفادهٔ مجدد آماده می‌کند، اما به storage و I/O نیاز دارد. |
+| Dataflow Engine | execution engineای که یک workflow را به شکل جریان data میان operatorها مدل می‌کند | با pipeline کردن stageها و مدیریت صریح dependencyها، می‌تواند materialization و I/O غیرضروری را کاهش دهد. |
+| Pipelined Execution | انتقال تدریجی output یک operator به operator بعدی، پیش از کامل‌شدن کل stage | latency و انتظار میان stageها را کم می‌کند؛ operatorهایی مثل sort همچنان ممکن است به کل input نیاز داشته باشند. |
+| Resilient Distributed Dataset (RDD) | abstraction در Spark برای data توزیع‌شده و ثبت زنجیرهٔ operationهای سازندهٔ آن | ancestry داده را نگه می‌دارد تا partition ازدست‌رفته پس از failure از روی ورودی‌های در دسترس دوباره محاسبه شود. |
+| Bulk Synchronous Parallel (BSP) | مدل محاسبات موازی که کار را در roundهای همگام اجرا می‌کند و میان roundها منتظر تکمیل پیام‌ها می‌ماند | ارتباط batchشده و ترتیب مشخص iterationها را فراهم می‌کند، اما هر round به barrier همگام‌سازی وابسته است. |
+| Pregel Model | مدل graph processing مبتنی بر BSP که function هر vertex را در هر iteration با پیام‌های تازه فراخوانی می‌کند | state vertexها را میان iterationها نگه می‌دارد و الگوریتم‌های graph توزیع‌شده را با message passing بیان می‌کند. |
+| Iterative Graph Processing | اجرای مکرر computation روی vertexها و edgeهای graph تا برآورده‌شدن شرط توقف یا همگرایی | برای الگوریتم‌هایی مانند PageRank به چند دور پردازش وابسته است و با یک pass سادهٔ MapReduce بیان نمی‌شود. |
+| Deterministic Computation | computationای که برای input یکسان، در هر بار اجرا output یکسان تولید می‌کند | بازسازی state پس از failure را امن‌تر می‌کند و از تناقض میان output قدیمی و محاسبه‌شدهٔ مجدد می‌کاهد. |
+| Vectorized Execution | اجرای یک operation روی batchهای data در loop داخلی فشرده، با کاهش function callهای تکی | CPU cache را بهتر به‌کار می‌گیرد و سربار پردازش recordبه‌record را کاهش می‌دهد. |
+| Directed Acyclic Graph (DAG) | graph جهت‌داری بدون cycle که وابستگی میان operatorها یا stageهای workflow را نشان می‌دهد | ترتیب اجرای مجاز و وابستگی data میان مرحله‌های computation را مدل می‌کند. |
+| Bounded Input | input با اندازه و مرز مشخص که job می‌تواند پایان خواندن آن را تشخیص دهد | امکان پایان‌یافتن batch job را فراهم می‌کند، چون حجم ورودی محدود است. |
+| Unbounded Input | stream ورودیِ ادامه‌دار که پایان ازپیش‌مشخصی ندارد | پردازش آن به jobی نیاز دارد که با رسیدن data جدید ادامه یابد و برخلاف batch محدود، ذاتاً پایان مشخصی ندارد. |
+| Stateless Operator | operatorای که state میان فراخوانی‌ها حفظ نمی‌کند و side effect بیرونی ندارد | اجرای مجدد task پس از failure را ایمن می‌کند و اجازه می‌دهد framework output تکراری یا ناموفق را دور بیندازد. |
