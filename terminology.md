@@ -328,7 +328,7 @@
 | Statement-Based Replication | ارسال statementهای write اجراشده از leader به follower | ساده و compact است، اما با operationهای nondeterministic و side effectدار مشکل دارد. |
 | Write-Ahead Log Shipping | replication با ارسال WAL سطح پایین storage engine | copy دقیق data structureها را می‌سازد، اما leader و follower را به storage format وابسته می‌کند. |
 | Logical Replication | replication بر اساس log مستقل از internals storage engine | versionهای متفاوت database یا storage engine و integration با systemهای خارجی را آسان‌تر می‌کند. |
-| Change Data Capture (CDC) | استخراج changeها از logical log برای ارسال به system خارجی | data را به data warehouse، cache یا custom index منتقل می‌کند. |
+| Change Data Capture (CDC) | capture کردن changeهای database و ارائهٔ آن‌ها به‌صورت stream برای replicate کردن به systemهای دیگر | systemهای derived data مانند search index و data warehouse را با ترتیب تغییرهای system of record همگام می‌کند. |
 | Durability | تضمین باقی ماندن write پذیرفته‌شده پس از crash یا failure | مشخص می‌کند write تأییدشده تا چه حد در برابر failure محافظت شده است. |
 | Network Partition | اختلالی که ارتباط بخشی از nodeها را با بخش دیگر قطع می‌کند | می‌تواند failure detection، failover و consistency را پیچیده کند. |
 | Consensus | توافق چند node بر سر value یا leader مشترک | برای election و جلوگیری از تصمیم‌های متناقض در system distributed لازم است. |
@@ -668,3 +668,45 @@
 | Bounded Input | input با اندازه و مرز مشخص که job می‌تواند پایان خواندن آن را تشخیص دهد | امکان پایان‌یافتن batch job را فراهم می‌کند، چون حجم ورودی محدود است. |
 | Unbounded Input | stream ورودیِ ادامه‌دار که پایان ازپیش‌مشخصی ندارد | پردازش آن به jobی نیاز دارد که با رسیدن data جدید ادامه یابد و برخلاف batch محدود، ذاتاً پایان مشخصی ندارد. |
 | Stateless Operator | operatorای که state میان فراخوانی‌ها حفظ نمی‌کند و side effect بیرونی ندارد | اجرای مجدد task پس از failure را ایمن می‌کند و اجازه می‌دهد framework output تکراری یا ناموفق را دور بیندازد. |
+
+## Chapter 11
+
+| English Term | Persian Explanation | Engineering Meaning |
+|---|---|---|
+| Event Stream | دنباله‌ای از eventهای مستقل که به‌تدریج در طول زمان تولید و برای پردازش در دسترس قرار می‌گیرند | input نامحدود stream processing را تشکیل می‌دهد و برخلاف batch از ابتدا پایان مشخصی ندارد. |
+| Producer | componentی که event یا message را تولید و به stream یا broker می‌فرستد | در الگوی publish/subscribe، تولیدکننده را از consumerهای دریافت‌کننده جدا می‌کند. |
+| Consumer | componentی که پیام‌ها یا eventهای stream را دریافت و پردازش می‌کند | می‌تواند offset یا موقعیت خواندن خود را مستقل از producer و consumerهای دیگر دنبال کند. |
+| Publish/Subscribe | الگوی messaging که producer پیام را برای topic منتشر می‌کند و consumerهای subscribeشده آن را دریافت می‌کنند | ارتباط یک‌به‌چند را ممکن می‌کند و producer را از فهرست گیرندگان decouple می‌سازد. |
+| Message Acknowledgment | تأیید صریح consumer به broker پس از پردازش پیام | broker بر اساس آن پیام را حذف‌شده تلقی می‌کند یا در نبود تأیید، امکان تحویل دوباره را فراهم می‌سازد. |
+| Message Redelivery | تحویل دوبارهٔ پیام تأییدنشده، معمولاً پس از قطع connection یا timeout consumer | از گم‌شدن پیام جلوگیری می‌کند، اما ممکن است پردازش تکراری یا تغییر ترتیب پیام‌ها ایجاد کند. |
+| Topic | دسته یا stream نام‌گذاری‌شده‌ای که پیام‌های مرتبط را گروه‌بندی می‌کند | نقطهٔ انتشار و subscribe در messaging system است و می‌تواند از چند partition تشکیل شود. |
+| Partitioned Log | log append-only تقسیم‌شده به partitionهای مستقل برای افزایش throughput و توزیع بار | ترتیب را در هر partition حفظ می‌کند، اما ترتیب سراسری میان partitionها تضمین نمی‌شود. |
+| Consumer Offset | موقعیت پیام در partition که consumer تا آنجا پیش رفته یا پردازش کرده است | recovery پس از جابه‌جایی consumer را ممکن می‌کند؛ offset ثبت‌نشده ممکن است باعث پردازش دوباره شود. |
+| Message Replay | مصرف دوبارهٔ پیام‌های قدیمی با عقب‌بردن offset، بدون تغییر خود log | اجرای مجدد و آزمودن transformationها را ممکن می‌کند و recovery را از بازسازی input جدا نگه می‌دارد. |
+| Append-Only Log | دنبالهٔ پایدار recordها که write جدید فقط به انتهای آن اضافه می‌شود | خواندن ترتیبی، offsetگذاری و replay را ساده می‌کند؛ برای کنترل فضا معمولاً به retention یا حذف segmentهای قدیمی نیاز دارد. |
+| Dual Writes | نوشتن یک تغییر در چند system مستقل از داخل application | اگر writeها هم‌زمانی نامناسب داشته باشند یا یکی شکست بخورد، می‌توانند race condition و ناسازگاری ایجاد کنند. |
+| System of Record | منبع معتبر اصلی data که systemهای دیگر از آن نسخه یا view مشتق می‌کنند | CDC تغییرها را از آن استخراج می‌کند تا cache، index و warehouse با مرجع اصلی همگام شوند. |
+| Log Compaction | حذف رکوردهای قدیمی‌تر برای هر key و نگه‌داشتن جدیدترین مقدار آن در log | اندازهٔ تاریخچه را به محتوای فعلی نزدیک می‌کند و امکان ساخت دوبارهٔ view از log را حفظ می‌کند. |
+| Event Sourcing | مدل‌سازی تغییرهای application state به‌شکل eventهای immutable در یک log append-only | امکان بازسازی state، audit و ساخت read viewهای مختلف را فراهم می‌کند، اما معمولاً به حفظ تاریخچهٔ کامل نیاز دارد. |
+| Command-Event Distinction | جداکردن command قابل‌اعتبارسنجی کاربر از eventی که پس از پذیرش، fact ثبت‌شده محسوب می‌شود | validation را پیش از انتشار event انجام می‌دهد و مانع ردکردن eventی می‌شود که قبلاً وارد log شده است. |
+| Command Query Responsibility Segregation (CQRS) | جداسازی مدل نوشتن از read modelهایی که برای queryهای مختلف ساخته می‌شوند | تغییر مستقل write path و read viewها و ارائهٔ چند representation از data را ممکن می‌کند. |
+| Read Model | representation مشتق‌شده از data که برای query یا الگوی read مشخصی بهینه شده است | می‌تواند denormalized باشد و از event log یا system of record دوباره ساخته شود. |
+| Immutable Event | record تغییرناپذیری از اتفاقی که رخ داده و برای اصلاحش event جبرانی تازه‌ای ثبت می‌شود | تاریخچهٔ قابل‌اعتماد و auditپذیر را حفظ می‌کند و بازنویسی گذشته را از مسیر معمول تغییر data جدا می‌سازد. |
+| Excision | حذف انتخابی data از تاریخچهٔ immutable با بازنویسی تاریخچه یا حذف نسخه‌های قابل‌بازیابی | برای الزام‌های حریم خصوصی و حذف اطلاعات حساس به کار می‌رود، هرچند پاک‌کردن همهٔ copyها دشوار است. |
+| Complex Event Processing (CEP) | تشخیص patternهای چندمرحله‌ای در event stream و تولید event تازه هنگام یافتن match | queryها یا ruleهای بلندمدت را روی جریان eventها اعمال می‌کند تا رخدادهای معنادار شناسایی شوند. |
+| Stream Analytics | محاسبهٔ aggregation و metricهای آماری روی حجم زیادی از eventهای جاری | نرخ، میانگین و percentile را معمولاً در windowهای زمانی برای پایش trendها به‌روز نگه می‌دارد. |
+| Event Time | زمان وقوع event، معمولاً بر اساس timestamp همراه خود event | برای windowing معنای زمانی data را حفظ می‌کند، حتی اگر event دیر پردازش یا دریافت شود. |
+| Processing Time | زمان پردازش event روی machine اجراکنندهٔ stream processor | ساده‌تر در دسترس است، اما backlog و delay می‌توانند آن را از زمان واقعی وقوع event جدا کنند. |
+| Window | گروه یا بازه‌ای از eventها که برای aggregation و تحلیل زمانی با هم پردازش می‌شوند | state stream processor را محدود می‌کند و تعیین می‌کند کدام eventها در یک نتیجهٔ زمانی مشارکت کنند. |
+| Tumbling Window | window ثابت و بدون هم‌پوشانی که هر event دقیقاً به یکی از آن‌ها تعلق دارد | aggregationهای دوره‌ای با مرزهای زمانی مشخص، مانند شمارش در هر دقیقه، می‌سازد. |
+| Hopping Window | window ثابت با فاصلهٔ شروع کوتاه‌تر از طول خود، در نتیجه با هم‌پوشانی | metricهای هموارشده و rolling را با محاسبهٔ تکراری بخشی از eventها فراهم می‌کند. |
+| Sliding Window | windowی که eventها را بر اساس فاصلهٔ زمانی‌شان از یکدیگر گروه‌بندی می‌کند، نه مرزهای ثابت | تحلیل بازهٔ متحرک واقعی را ممکن می‌کند، اما معمولاً به نگهداری و حذف eventهای منقضی‌شده نیاز دارد. |
+| Session Window | windowی با طول متغیر که eventهای نزدیک به هم برای یک user را تا رسیدن دورهٔ inactivity گروه‌بندی می‌کند | برای sessionization و تحلیل رفتار user مناسب است. |
+| Late-Arriving Event | eventی که پس از بسته یا نهایی‌شدن window مربوط به event time خود می‌رسد | یا باید نادیده گرفته و اندازه‌گیری شود، یا با correction در نتیجهٔ قبلی منعکس شود. |
+| Stream-Stream Join | join دو stream event با نگهداری state از هر دو ورودی و تطبیق eventهای مرتبط | معمولاً از window زمانی برای محدودکردن state و تعیین eventهای قابل‌تطبیق استفاده می‌کند. |
+| Stream-Table Join | join eventهای stream با state جاری table که ممکن است از changelog به‌روز شود | برای enrichment event با دادهٔ مرجع، مانند profile کاربر، به کار می‌رود. |
+| Table-Table Join | نگهداری پیوستهٔ join چند table و update کردن نتیجه با تغییر هرکدام | materialized viewهای مشتق‌شده‌ای مانند timeline cache را به‌روز نگه می‌دارد. |
+| Exactly-Once Semantics | تضمین effect قابل‌مشاهدهٔ یک‌باره برای هر input، حتی در صورت retry داخلی task | مستلزم هماهنگی state، offset، output و side effectهای بیرونی است؛ تضمین داخل framework به‌تنهایی برای مقصد خارجی کافی نیست. |
+| Microbatching | تقسیم stream به batchهای کوچک و پردازش آن‌ها به‌صورت دوره‌ای | پیاده‌سازی semantics شبیه batch را ممکن می‌کند، با trade-off میان latency و سربار scheduling. |
+| AMQP/JMS-Style Message Broker | brokerی که پیام‌ها را جداگانه به consumer می‌دهد و پس از acknowledgment حذف می‌کند | برای task queue و پیام‌رسانی asynchronous مناسب است، اما replay پیام‌های پردازش‌شده را پشتیبانی نمی‌کند. |
+| Log-Based Message Broker | brokerی که پیام‌ها را در partitionهای پایدار نگه می‌دارد و consumerها با offset ترتیبی می‌خوانند | ordering درون partition، fan-out و replay را فراهم می‌کند؛ parallelism با تعداد partitionها محدود می‌شود. |
